@@ -5,8 +5,7 @@ import { convertPrice } from "@/lib/data";
 import { useState } from "react";
 
 export default function CartPage() {
-  const { items, removeItem, clearCart, currency } = useCart();
-  const [purchased, setPurchased] = useState(false);
+  const { items, removeItem, currency } = useCart();
 
   const total = items.reduce((sum, item) => sum + item.price, 0);
 
