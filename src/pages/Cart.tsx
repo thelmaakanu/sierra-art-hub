@@ -1,8 +1,7 @@
 import { Link } from "react-router-dom";
-import { Trash2, ArrowLeft, CheckCircle2 } from "lucide-react";
+import { Trash2, ArrowLeft } from "lucide-react";
 import { useCart } from "@/lib/cart";
 import { convertPrice } from "@/lib/data";
-import { useState } from "react";
 
 export default function CartPage() {
   const { items, removeItem, currency } = useCart();
