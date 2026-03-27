@@ -8,19 +8,6 @@ export default function CartPage() {
 
   const total = items.reduce((sum, item) => sum + item.price, 0);
 
-  if (purchased) {
-    return (
-      <div className="container py-20 text-center max-w-md mx-auto">
-        <CheckCircle2 className="h-16 w-16 text-primary mx-auto mb-6" />
-        <h1 className="font-display text-3xl font-bold mb-3">Purchase Successful!</h1>
-        <p className="text-muted-foreground mb-8">Thank you for supporting Sierra Leonean artists. Your artwork is on its way.</p>
-        <Link to="/shop" className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-6 py-3 rounded-md font-medium text-sm">
-          Continue Shopping
-        </Link>
-      </div>
-    );
-  }
-
   if (items.length === 0) {
     return (
       <div className="container py-20 text-center">
