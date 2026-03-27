@@ -72,8 +72,8 @@ export default function CartPage() {
           to="/checkout"
           className="w-full block text-center bg-primary text-primary-foreground py-3.5 rounded-md font-medium text-sm hover:opacity-90 transition-opacity"
         >
-          Complete Purchase
-        </button>
+          Proceed to Checkout
+        </Link>
       </div>
     </div>
   );

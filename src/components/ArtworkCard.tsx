@@ -2,10 +2,20 @@ import { Link } from "react-router-dom";
 import { Heart } from "lucide-react";
 import { Artwork, convertPrice } from "@/lib/data";
 import { useCart } from "@/lib/cart";
+import { useWishlist } from "@/lib/wishlist";
 import { motion } from "framer-motion";
+import { toast } from "sonner";
 
 export default function ArtworkCard({ artwork, index = 0 }: { artwork: Artwork; index?: number }) {
   const { currency } = useCart();
+  const { isWishlisted, toggleWishlist } = useWishlist();
+  const wishlisted = isWishlisted(artwork.id);
+
+  const handleWishlist = (e: React.MouseEvent) => {
+    e.preventDefault();
+    toggleWishlist(artwork.id);
+    toast.success(wishlisted ? "Removed from wishlist" : "Added to wishlist");
+  };
 
   return (
     <motion.div
@@ -29,9 +39,9 @@ export default function ArtworkCard({ artwork, index = 0 }: { artwork: Artwork; 
           )}
           <button
             className="absolute top-3 right-3 p-2 rounded-full bg-background/80 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity hover:bg-background"
-            onClick={e => { e.preventDefault(); }}
+            onClick={handleWishlist}
           >
-            <Heart className="h-4 w-4 text-foreground" />
+            <Heart className={`h-4 w-4 ${wishlisted ? "fill-primary text-primary" : "text-foreground"}`} />
           </button>
         </div>
         <div className="mt-3 space-y-1">
