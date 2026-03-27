@@ -1,27 +1,12 @@
 import { Link } from "react-router-dom";
-import { Trash2, ArrowLeft, CheckCircle2 } from "lucide-react";
+import { Trash2, ArrowLeft } from "lucide-react";
 import { useCart } from "@/lib/cart";
 import { convertPrice } from "@/lib/data";
-import { useState } from "react";
 
 export default function CartPage() {
-  const { items, removeItem, clearCart, currency } = useCart();
-  const [purchased, setPurchased] = useState(false);
+  const { items, removeItem, currency } = useCart();
 
   const total = items.reduce((sum, item) => sum + item.price, 0);
-
-  if (purchased) {
-    return (
-      <div className="container py-20 text-center max-w-md mx-auto">
-        <CheckCircle2 className="h-16 w-16 text-primary mx-auto mb-6" />
-        <h1 className="font-display text-3xl font-bold mb-3">Purchase Successful!</h1>
-        <p className="text-muted-foreground mb-8">Thank you for supporting Sierra Leonean artists. Your artwork is on its way.</p>
-        <Link to="/shop" className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-6 py-3 rounded-md font-medium text-sm">
-          Continue Shopping
-        </Link>
-      </div>
-    );
-  }
 
   if (items.length === 0) {
     return (
@@ -68,12 +53,12 @@ export default function CartPage() {
           <span className="font-display font-bold text-lg">Total</span>
           <span className="font-display font-bold text-lg text-primary">{convertPrice(total, currency)}</span>
         </div>
-        <button
-          onClick={() => { clearCart(); setPurchased(true); }}
-          className="w-full bg-primary text-primary-foreground py-3.5 rounded-md font-medium text-sm hover:opacity-90 transition-opacity"
+        <Link
+          to="/checkout"
+          className="w-full block text-center bg-primary text-primary-foreground py-3.5 rounded-md font-medium text-sm hover:opacity-90 transition-opacity"
         >
-          Complete Purchase
-        </button>
+          Proceed to Checkout
+        </Link>
       </div>
     </div>
   );

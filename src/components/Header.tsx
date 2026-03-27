@@ -1,7 +1,8 @@
 import { Link, useLocation } from "react-router-dom";
-import { ShoppingBag, Menu, X, Search } from "lucide-react";
+import { ShoppingBag, Menu, X, Search, Heart, User, LayoutDashboard } from "lucide-react";
 import { useState } from "react";
 import { useCart } from "@/lib/cart";
+import { useWishlist } from "@/lib/wishlist";
 import { currencies } from "@/lib/data";
 import logo from "@/assets/logo.png";
 
@@ -10,11 +11,13 @@ const navLinks = [
   { to: "/shop", label: "Shop" },
   { to: "/artists", label: "Artists" },
   { to: "/exhibitions", label: "Exhibitions" },
+  { to: "/community", label: "Community" },
 ];
 
 export default function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const { items, currency, setCurrency } = useCart();
+  const { wishlist } = useWishlist();
   const location = useLocation();
 
   return (
@@ -39,9 +42,18 @@ export default function Header() {
           ))}
         </nav>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           <Link to="/search" className="p-2 hover:text-primary transition-colors">
             <Search className="h-5 w-5" />
+          </Link>
+
+          <Link to="/wishlist" className="relative p-2 hover:text-primary transition-colors">
+            <Heart className="h-5 w-5" />
+            {wishlist.length > 0 && (
+              <span className="absolute -top-0.5 -right-0.5 bg-primary text-primary-foreground text-[10px] font-bold rounded-full h-4 w-4 flex items-center justify-center">
+                {wishlist.length}
+              </span>
+            )}
           </Link>
 
           <select
@@ -61,6 +73,14 @@ export default function Header() {
                 {items.length}
               </span>
             )}
+          </Link>
+
+          <Link to="/dashboard" className="hidden md:flex p-2 hover:text-primary transition-colors" title="Dashboard">
+            <LayoutDashboard className="h-5 w-5" />
+          </Link>
+
+          <Link to="/login" className="hidden md:flex p-2 hover:text-primary transition-colors" title="Login">
+            <User className="h-5 w-5" />
           </Link>
 
           <button className="md:hidden p-2" onClick={() => setMobileOpen(!mobileOpen)}>
@@ -83,6 +103,12 @@ export default function Header() {
               {l.label}
             </Link>
           ))}
+          <Link to="/dashboard" onClick={() => setMobileOpen(false)} className="block text-base font-medium text-muted-foreground">
+            Dashboard
+          </Link>
+          <Link to="/login" onClick={() => setMobileOpen(false)} className="block text-base font-medium text-muted-foreground">
+            Login
+          </Link>
         </nav>
       )}
     </header>
