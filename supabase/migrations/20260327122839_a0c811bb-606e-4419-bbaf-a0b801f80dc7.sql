@@ -1,0 +1,1 @@
+ALTER FUNCTION public.validate_sl_phone(TEXT) SET search_path = public;
