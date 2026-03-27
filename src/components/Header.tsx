@@ -1,8 +1,9 @@
 import { Link, useLocation } from "react-router-dom";
-import { ShoppingBag, Menu, X, Search, Heart, User, LayoutDashboard } from "lucide-react";
+import { ShoppingBag, Menu, X, Search, Heart, User, LayoutDashboard, LogOut } from "lucide-react";
 import { useState } from "react";
 import { useCart } from "@/lib/cart";
 import { useWishlist } from "@/lib/wishlist";
+import { useAuth } from "@/lib/auth";
 import { currencies } from "@/lib/data";
 import logo from "@/assets/logo.png";
 
@@ -18,6 +19,7 @@ export default function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const { items, currency, setCurrency } = useCart();
   const { wishlist } = useWishlist();
+  const { user, profile, signOut } = useAuth();
   const location = useLocation();
 
   return (
@@ -75,13 +77,27 @@ export default function Header() {
             )}
           </Link>
 
-          <Link to="/dashboard" className="hidden md:flex p-2 hover:text-primary transition-colors" title="Dashboard">
-            <LayoutDashboard className="h-5 w-5" />
-          </Link>
-
-          <Link to="/login" className="hidden md:flex p-2 hover:text-primary transition-colors" title="Login">
-            <User className="h-5 w-5" />
-          </Link>
+          {user ? (
+            <>
+              {profile?.user_type === "artist" && (
+                <Link to="/dashboard" className="hidden md:flex p-2 hover:text-primary transition-colors" title="Dashboard">
+                  <LayoutDashboard className="h-5 w-5" />
+                </Link>
+              )}
+              <button onClick={signOut} className="hidden md:flex p-2 hover:text-destructive transition-colors" title="Sign out">
+                <LogOut className="h-5 w-5" />
+              </button>
+              <div className="hidden md:flex items-center gap-2 pl-1">
+                <div className="h-8 w-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-bold">
+                  {(profile?.full_name || user.email || "U")[0].toUpperCase()}
+                </div>
+              </div>
+            </>
+          ) : (
+            <Link to="/login" className="hidden md:flex p-2 hover:text-primary transition-colors" title="Login">
+              <User className="h-5 w-5" />
+            </Link>
+          )}
 
           <button className="md:hidden p-2" onClick={() => setMobileOpen(!mobileOpen)}>
             {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
@@ -103,12 +119,22 @@ export default function Header() {
               {l.label}
             </Link>
           ))}
-          <Link to="/dashboard" onClick={() => setMobileOpen(false)} className="block text-base font-medium text-muted-foreground">
-            Dashboard
-          </Link>
-          <Link to="/login" onClick={() => setMobileOpen(false)} className="block text-base font-medium text-muted-foreground">
-            Login
-          </Link>
+          {user ? (
+            <>
+              {profile?.user_type === "artist" && (
+                <Link to="/dashboard" onClick={() => setMobileOpen(false)} className="block text-base font-medium text-muted-foreground">
+                  Dashboard
+                </Link>
+              )}
+              <button onClick={() => { signOut(); setMobileOpen(false); }} className="block text-base font-medium text-destructive">
+                Sign Out
+              </button>
+            </>
+          ) : (
+            <Link to="/login" onClick={() => setMobileOpen(false)} className="block text-base font-medium text-muted-foreground">
+              Login
+            </Link>
+          )}
         </nav>
       )}
     </header>
