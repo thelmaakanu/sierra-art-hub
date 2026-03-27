@@ -68,9 +68,9 @@ export default function CartPage() {
           <span className="font-display font-bold text-lg">Total</span>
           <span className="font-display font-bold text-lg text-primary">{convertPrice(total, currency)}</span>
         </div>
-        <button
-          onClick={() => { clearCart(); setPurchased(true); }}
-          className="w-full bg-primary text-primary-foreground py-3.5 rounded-md font-medium text-sm hover:opacity-90 transition-opacity"
+        <Link
+          to="/checkout"
+          className="w-full block text-center bg-primary text-primary-foreground py-3.5 rounded-md font-medium text-sm hover:opacity-90 transition-opacity"
         >
           Complete Purchase
         </button>
