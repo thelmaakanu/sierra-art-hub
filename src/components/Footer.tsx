@@ -3,8 +3,8 @@ import { Link } from "react-router-dom";
 export default function Footer() {
   return (
     <footer className="bg-foreground text-background/80 mt-20">
-      <div className="container py-16 grid grid-cols-1 md:grid-cols-4 gap-10">
-        <div>
+      <div className="container py-12 md:py-16 grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-10">
+        <div className="col-span-2 md:col-span-1">
           <h3 className="font-display text-xl font-bold text-background mb-4">ArtVault</h3>
           <p className="text-sm leading-relaxed text-background/60">
             Connecting Sierra Leonean artists with the world. Authentic art, verified creators.
@@ -20,19 +20,18 @@ export default function Footer() {
           </div>
         </div>
         <div>
-          <h4 className="font-display font-semibold text-background mb-4">Support</h4>
+          <h4 className="font-display font-semibold text-background mb-4">Company</h4>
           <div className="space-y-2 text-sm">
-            <a href="#" className="block hover:text-background transition-colors">Help Center</a>
-            <a href="#" className="block hover:text-background transition-colors">Shipping Info</a>
-            <a href="#" className="block hover:text-background transition-colors">Returns</a>
+            <Link to="/about" className="block hover:text-background transition-colors">About</Link>
+            <Link to="/contact" className="block hover:text-background transition-colors">Contact</Link>
           </div>
         </div>
         <div>
           <h4 className="font-display font-semibold text-background mb-4">Newsletter</h4>
           <p className="text-sm text-background/60 mb-3">Get updates on new artists and exhibitions.</p>
           <div className="flex">
-            <input type="email" placeholder="Your email" className="flex-1 px-3 py-2 rounded-l-md text-sm bg-background/10 border border-background/20 text-background placeholder:text-background/40 focus:outline-none" />
-            <button className="px-4 py-2 bg-primary text-primary-foreground rounded-r-md text-sm font-medium hover:opacity-90 transition-opacity">
+            <input type="email" placeholder="Your email" className="flex-1 min-w-0 px-3 py-2 rounded-l-md text-sm bg-background/10 border border-background/20 text-background placeholder:text-background/40 focus:outline-none" />
+            <button className="px-4 py-2 bg-primary text-primary-foreground rounded-r-md text-sm font-medium hover:opacity-90 transition-opacity whitespace-nowrap">
               Join
             </button>
           </div>

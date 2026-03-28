@@ -5,7 +5,6 @@ import { useCart } from "@/lib/cart";
 import { useWishlist } from "@/lib/wishlist";
 import { useAuth } from "@/lib/auth";
 import { currencies } from "@/lib/data";
-import logo from "@/assets/logo.png";
 
 const navLinks = [
   { to: "/", label: "Home" },
@@ -13,6 +12,7 @@ const navLinks = [
   { to: "/artists", label: "Artists" },
   { to: "/exhibitions", label: "Exhibitions" },
   { to: "/community", label: "Community" },
+  { to: "/about", label: "About" },
 ];
 
 export default function Header() {
@@ -24,13 +24,12 @@ export default function Header() {
 
   return (
     <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b">
-      <div className="container flex items-center justify-between h-16 md:h-20">
+      <div className="container flex items-center justify-between h-14 md:h-16">
         <Link to="/" className="flex items-center gap-2">
-          <img src={logo} alt="ArtVault" className="h-10 w-10 md:h-12 md:w-12" />
-          <span className="font-display text-xl md:text-2xl font-bold tracking-tight">ArtVault</span>
+          <span className="font-display text-lg md:text-xl font-bold tracking-tight">ArtVault</span>
         </Link>
 
-        <nav className="hidden md:flex items-center gap-8">
+        <nav className="hidden lg:flex items-center gap-6">
           {navLinks.map(l => (
             <Link
               key={l.to}
@@ -44,7 +43,7 @@ export default function Header() {
           ))}
         </nav>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1 md:gap-2">
           <Link to="/search" className="p-2 hover:text-primary transition-colors">
             <Search className="h-5 w-5" />
           </Link>
@@ -61,7 +60,7 @@ export default function Header() {
           <select
             value={currency}
             onChange={e => setCurrency(e.target.value)}
-            className="text-xs bg-secondary rounded-md px-2 py-1.5 border-none font-medium text-secondary-foreground"
+            className="hidden md:block text-xs bg-secondary rounded-md px-2 py-1.5 border-none font-medium text-secondary-foreground"
           >
             {currencies.map(c => (
               <option key={c.code} value={c.code}>{c.code}</option>
@@ -87,7 +86,7 @@ export default function Header() {
               <button onClick={signOut} className="hidden md:flex p-2 hover:text-destructive transition-colors" title="Sign out">
                 <LogOut className="h-5 w-5" />
               </button>
-              <div className="hidden md:flex items-center gap-2 pl-1">
+              <div className="hidden md:flex items-center pl-1">
                 <div className="h-8 w-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-bold">
                   {(profile?.full_name || user.email || "U")[0].toUpperCase()}
                 </div>
@@ -99,39 +98,49 @@ export default function Header() {
             </Link>
           )}
 
-          <button className="md:hidden p-2" onClick={() => setMobileOpen(!mobileOpen)}>
+          <button className="lg:hidden p-2" onClick={() => setMobileOpen(!mobileOpen)}>
             {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
         </div>
       </div>
 
       {mobileOpen && (
-        <nav className="md:hidden border-t bg-background px-6 py-4 space-y-3">
+        <nav className="lg:hidden border-t bg-background px-6 py-4 space-y-3">
           {navLinks.map(l => (
             <Link
               key={l.to}
               to={l.to}
               onClick={() => setMobileOpen(false)}
-              className={`block text-base font-medium ${
+              className={`block text-base font-medium py-1 ${
                 location.pathname === l.to ? "text-primary" : "text-muted-foreground"
               }`}
             >
               {l.label}
             </Link>
           ))}
+          <Link to="/contact" onClick={() => setMobileOpen(false)} className="block text-base font-medium py-1 text-muted-foreground">Contact</Link>
+          <div className="pt-2 border-t">
+            <select
+              value={currency}
+              onChange={e => setCurrency(e.target.value)}
+              className="text-sm bg-secondary rounded-md px-3 py-2 border-none font-medium text-secondary-foreground w-full mb-3"
+            >
+              {currencies.map(c => <option key={c.code} value={c.code}>{c.code} ({c.symbol})</option>)}
+            </select>
+          </div>
           {user ? (
             <>
               {profile?.user_type === "artist" && (
-                <Link to="/dashboard" onClick={() => setMobileOpen(false)} className="block text-base font-medium text-muted-foreground">
+                <Link to="/dashboard" onClick={() => setMobileOpen(false)} className="block text-base font-medium text-muted-foreground py-1">
                   Dashboard
                 </Link>
               )}
-              <button onClick={() => { signOut(); setMobileOpen(false); }} className="block text-base font-medium text-destructive">
+              <button onClick={() => { signOut(); setMobileOpen(false); }} className="block text-base font-medium text-destructive py-1">
                 Sign Out
               </button>
             </>
           ) : (
-            <Link to="/login" onClick={() => setMobileOpen(false)} className="block text-base font-medium text-muted-foreground">
+            <Link to="/login" onClick={() => setMobileOpen(false)} className="block text-base font-medium text-muted-foreground py-1">
               Login
             </Link>
           )}

@@ -1,33 +1,49 @@
-import { useState } from "react";
-import { Upload, Edit3, Trash2, DollarSign, TrendingUp, Eye, Package, Bell, Users, Image as ImageIcon } from "lucide-react";
-import { artists, artworks, convertPrice, categories } from "@/lib/data";
+import { useState, useEffect, useRef } from "react";
+import { Upload, Edit3, Trash2, DollarSign, TrendingUp, Eye, Package, Bell, Image as ImageIcon } from "lucide-react";
+import { convertPrice, categories } from "@/lib/data";
 import { useCart } from "@/lib/cart";
+import { useAuth } from "@/lib/auth";
+import { supabase } from "@/integrations/supabase/client";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
+import { Link, useNavigate } from "react-router-dom";
 
 const COMMISSION_RATE = 10;
-const mockArtist = artists[0];
-const mockArtistWorks = artworks.filter(a => a.artistId === mockArtist.id);
-
-const mockEarnings = {
-  total: 8500,
-  pending: 2500,
-  completed: 5500,
-  withdrawable: 5000,
-};
-
-const mockNotifications = [
-  { id: "1", text: "New follower: Sarah M.", time: "2h ago", read: false },
-  { id: "2", text: "'Mother & Child' received 5 new likes", time: "5h ago", read: false },
-  { id: "3", text: "'Rhythms of the Ancestors' was sold!", time: "1d ago", read: true },
-  { id: "4", text: "Payment of NLe 2,250 released", time: "2d ago", read: true },
-];
 
 type Tab = "gallery" | "upload" | "earnings" | "notifications";
 
+interface ArtworkRow {
+  id: string;
+  title: string;
+  description: string | null;
+  price: number;
+  category: string;
+  image_url: string | null;
+  sold: boolean;
+  created_at: string;
+}
+
 export default function Dashboard() {
-  const [activeTab, setActiveTab] = useState<Tab>("gallery");
+  const { user, profile, loading: authLoading } = useAuth();
   const { currency } = useCart();
+  const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState<Tab>("gallery");
+  const [artworks, setArtworks] = useState<ArtworkRow[]>([]);
+
+  useEffect(() => {
+    if (!authLoading && !user) navigate("/login");
+    if (!authLoading && profile && profile.user_type !== "artist") navigate("/");
+  }, [user, profile, authLoading]);
+
+  useEffect(() => {
+    if (user) fetchArtworks();
+  }, [user]);
+
+  const fetchArtworks = async () => {
+    if (!user) return;
+    const { data } = await supabase.from("artworks").select("*").eq("artist_id", user.id).order("created_at", { ascending: false });
+    setArtworks((data as ArtworkRow[]) || []);
+  };
 
   const tabs: { key: Tab; label: string; icon: React.ElementType }[] = [
     { key: "gallery", label: "My Gallery", icon: ImageIcon },
@@ -36,232 +52,221 @@ export default function Dashboard() {
     { key: "notifications", label: "Notifications", icon: Bell },
   ];
 
+  if (authLoading) return <div className="container py-20 text-center text-muted-foreground">Loading...</div>;
+  if (!user || !profile) return null;
+
   return (
     <div className="container py-8">
       {/* Profile Header */}
       <div className="flex flex-col md:flex-row items-start gap-6 mb-10">
-        <div className="h-20 w-20 rounded-full overflow-hidden ring-4 ring-secondary flex-shrink-0">
-          <img src={mockArtist.image} alt={mockArtist.name} className="h-full w-full object-cover" />
+        <div className="h-20 w-20 rounded-full overflow-hidden ring-4 ring-secondary flex-shrink-0 bg-primary text-primary-foreground flex items-center justify-center text-2xl font-bold">
+          {profile.avatar_url ? (
+            <img src={profile.avatar_url} alt={profile.full_name} className="h-full w-full object-cover" />
+          ) : (
+            profile.full_name[0]?.toUpperCase()
+          )}
         </div>
         <div className="flex-1">
-          <h1 className="font-display text-2xl md:text-3xl font-bold mb-1">{mockArtist.name}</h1>
-          <p className="text-sm text-muted-foreground mb-3">{mockArtist.bio}</p>
+          <h1 className="font-display text-2xl md:text-3xl font-bold mb-1">{profile.full_name}</h1>
+          <p className="text-sm text-muted-foreground mb-3">{profile.bio || "Sierra Leonean Artist"}</p>
           <div className="flex gap-6 text-sm">
-            <div><span className="font-bold">{mockArtist.followers.toLocaleString()}</span> <span className="text-muted-foreground">Followers</span></div>
-            <div><span className="font-bold">{mockArtist.artworks}</span> <span className="text-muted-foreground">Artworks</span></div>
-            <div><span className="font-bold">12</span> <span className="text-muted-foreground">Following</span></div>
+            <div><span className="font-bold">{artworks.length}</span> <span className="text-muted-foreground">Artworks</span></div>
           </div>
         </div>
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 mb-8 overflow-x-auto border-b">
+      <div className="flex gap-1 mb-8 overflow-x-auto border-b -mx-4 px-4 md:mx-0 md:px-0">
         {tabs.map(tab => (
           <button
             key={tab.key}
             onClick={() => setActiveTab(tab.key)}
             className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
-              activeTab === tab.key
-                ? "border-primary text-primary"
-                : "border-transparent text-muted-foreground hover:text-foreground"
+              activeTab === tab.key ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"
             }`}
           >
             <tab.icon className="h-4 w-4" />
             {tab.label}
-            {tab.key === "notifications" && (
-              <span className="bg-primary text-primary-foreground text-[10px] font-bold rounded-full h-4 w-4 flex items-center justify-center">
-                {mockNotifications.filter(n => !n.read).length}
-              </span>
-            )}
           </button>
         ))}
       </div>
 
-      {activeTab === "gallery" && <GalleryTab works={mockArtistWorks} currency={currency} />}
-      {activeTab === "upload" && <UploadTab />}
-      {activeTab === "earnings" && <EarningsTab earnings={mockEarnings} currency={currency} />}
+      {activeTab === "gallery" && <GalleryTab works={artworks} currency={currency} onRefresh={fetchArtworks} />}
+      {activeTab === "upload" && <UploadTab userId={user.id} onUploaded={() => { fetchArtworks(); setActiveTab("gallery"); }} />}
+      {activeTab === "earnings" && <EarningsTab artworks={artworks} currency={currency} />}
       {activeTab === "notifications" && <NotificationsTab />}
     </div>
   );
 }
 
-function GalleryTab({ works, currency }: { works: typeof artworks; currency: string }) {
+function GalleryTab({ works, currency, onRefresh }: { works: ArtworkRow[]; currency: string; onRefresh: () => void }) {
+  const handleDelete = async (id: string) => {
+    const { error } = await supabase.from("artworks").delete().eq("id", id);
+    if (error) { toast.error("Failed to delete"); return; }
+    toast.success("Artwork deleted");
+    onRefresh();
+  };
+
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
         <h2 className="font-display text-xl font-bold">My Artworks ({works.length})</h2>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {works.map((work, i) => (
-          <motion.div
-            key={work.id}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.1 }}
-            className="bg-card rounded-lg border overflow-hidden"
-          >
-            <div className="aspect-[4/3] relative">
-              <img src={work.image} alt={work.title} className="h-full w-full object-cover" />
-              {work.sold && (
-                <div className="absolute top-2 right-2 bg-destructive text-destructive-foreground text-xs font-bold px-2 py-1 rounded">SOLD</div>
-              )}
-              {!work.sold && (
-                <div className="absolute top-2 right-2 bg-primary text-primary-foreground text-xs font-bold px-2 py-1 rounded">AVAILABLE</div>
-              )}
-            </div>
-            <div className="p-4">
-              <h3 className="font-display font-semibold text-sm mb-1">{work.title}</h3>
-              <p className="text-sm font-semibold text-primary mb-3">{convertPrice(work.price, currency)}</p>
-              <div className="flex gap-2">
-                <button className="flex-1 flex items-center justify-center gap-1 px-3 py-2 text-xs font-medium bg-secondary text-secondary-foreground rounded-md hover:bg-muted transition-colors">
-                  <Edit3 className="h-3 w-3" /> Edit
-                </button>
-                <button className="flex items-center justify-center gap-1 px-3 py-2 text-xs font-medium bg-secondary text-secondary-foreground rounded-md hover:bg-destructive hover:text-destructive-foreground transition-colors">
-                  <Trash2 className="h-3 w-3" />
-                </button>
+      {works.length === 0 ? (
+        <p className="text-center text-muted-foreground py-12">No artworks yet. Upload your first piece!</p>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {works.map((work, i) => (
+            <motion.div key={work.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }} className="bg-card rounded-lg border overflow-hidden">
+              <div className="aspect-[4/3] relative bg-muted">
+                {work.image_url ? (
+                  <img src={work.image_url} alt={work.title} className="h-full w-full object-cover" />
+                ) : (
+                  <div className="h-full w-full flex items-center justify-center text-muted-foreground"><ImageIcon className="h-10 w-10" /></div>
+                )}
+                <div className={`absolute top-2 right-2 text-xs font-bold px-2 py-1 rounded ${work.sold ? "bg-destructive text-destructive-foreground" : "bg-primary text-primary-foreground"}`}>
+                  {work.sold ? "SOLD" : "AVAILABLE"}
+                </div>
               </div>
-            </div>
-          </motion.div>
-        ))}
-      </div>
+              <div className="p-4">
+                <h3 className="font-display font-semibold text-sm mb-1">{work.title}</h3>
+                <p className="text-sm font-semibold text-primary mb-3">{convertPrice(work.price, currency)}</p>
+                <div className="flex gap-2">
+                  <button onClick={() => handleDelete(work.id)} className="flex items-center justify-center gap-1 px-3 py-2 text-xs font-medium bg-secondary text-secondary-foreground rounded-md hover:bg-destructive hover:text-destructive-foreground transition-colors">
+                    <Trash2 className="h-3 w-3" /> Delete
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
 
-function UploadTab() {
+function UploadTab({ userId, onUploaded }: { userId: string; onUploaded: () => void }) {
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [category, setCategory] = useState("Painting");
   const [price, setPrice] = useState(0);
+  const [file, setFile] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
+
   const commission = price * (COMMISSION_RATE / 100);
   const earnings = price - commission;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast.success("Artwork uploaded successfully! (Demo)");
+    if (!title.trim() || price <= 0) { toast.error("Please fill all fields"); return; }
+
+    setUploading(true);
+    let imageUrl: string | null = null;
+
+    if (file) {
+      const ext = file.name.split(".").pop();
+      const path = `${userId}/${Date.now()}.${ext}`;
+      const { error: uploadError } = await supabase.storage.from("artist-uploads").upload(path, file);
+      if (uploadError) { toast.error("Image upload failed"); setUploading(false); return; }
+      const { data: urlData } = supabase.storage.from("artist-uploads").getPublicUrl(path);
+      imageUrl = urlData.publicUrl;
+    }
+
+    const { error } = await supabase.from("artworks").insert({
+      artist_id: userId,
+      title: title.trim(),
+      description: description.trim() || null,
+      category,
+      price,
+      image_url: imageUrl,
+    });
+
+    setUploading(false);
+    if (error) { toast.error("Failed to upload artwork"); return; }
+    toast.success("Artwork uploaded successfully!");
+    onUploaded();
   };
 
   return (
     <div className="max-w-xl">
       <h2 className="font-display text-xl font-bold mb-6">Upload New Artwork</h2>
       <form onSubmit={handleSubmit} className="space-y-5">
-        <div className="border-2 border-dashed border-border rounded-lg p-10 text-center cursor-pointer hover:border-primary/50 transition-colors">
+        <div
+          onClick={() => fileRef.current?.click()}
+          className="border-2 border-dashed border-border rounded-lg p-10 text-center cursor-pointer hover:border-primary/50 transition-colors"
+        >
           <Upload className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
-          <p className="text-sm text-muted-foreground">Click or drag to upload artwork image</p>
+          <p className="text-sm text-muted-foreground">{file ? file.name : "Click or drag to upload artwork image"}</p>
           <p className="text-xs text-muted-foreground mt-1">JPG, PNG, WebP up to 10MB</p>
+          <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={e => setFile(e.target.files?.[0] || null)} />
         </div>
 
         <div>
           <label className="block text-sm font-medium mb-1.5">Title</label>
-          <input type="text" placeholder="Artwork title" className="w-full px-3 py-2.5 rounded-md text-sm bg-secondary border-none focus:outline-none focus:ring-2 focus:ring-ring" required />
+          <input type="text" value={title} onChange={e => setTitle(e.target.value)} placeholder="Artwork title" className="w-full px-3 py-2.5 rounded-md text-sm bg-secondary border-none focus:outline-none focus:ring-2 focus:ring-ring" required />
         </div>
 
         <div>
           <label className="block text-sm font-medium mb-1.5">Description</label>
-          <textarea placeholder="Describe your artwork..." rows={3} className="w-full px-3 py-2.5 rounded-md text-sm bg-secondary border-none focus:outline-none focus:ring-2 focus:ring-ring resize-none" required />
+          <textarea value={description} onChange={e => setDescription(e.target.value)} placeholder="Describe your artwork..." rows={3} className="w-full px-3 py-2.5 rounded-md text-sm bg-secondary border-none focus:outline-none focus:ring-2 focus:ring-ring resize-none" />
         </div>
 
         <div>
           <label className="block text-sm font-medium mb-1.5">Category</label>
-          <select className="w-full px-3 py-2.5 rounded-md text-sm bg-secondary border-none focus:outline-none focus:ring-2 focus:ring-ring" required>
-            {categories.filter(c => c !== "All").map(cat => (
-              <option key={cat} value={cat}>{cat}</option>
-            ))}
+          <select value={category} onChange={e => setCategory(e.target.value)} className="w-full px-3 py-2.5 rounded-md text-sm bg-secondary border-none focus:outline-none focus:ring-2 focus:ring-ring">
+            {categories.filter(c => c !== "All").map(cat => <option key={cat} value={cat}>{cat}</option>)}
           </select>
         </div>
 
         <div>
           <label className="block text-sm font-medium mb-1.5">Price (NLE)</label>
-          <input
-            type="number"
-            min={0}
-            placeholder="0"
-            value={price || ""}
-            onChange={e => setPrice(Number(e.target.value))}
-            className="w-full px-3 py-2.5 rounded-md text-sm bg-secondary border-none focus:outline-none focus:ring-2 focus:ring-ring"
-            required
-          />
+          <input type="number" min={0} value={price || ""} onChange={e => setPrice(Number(e.target.value))} className="w-full px-3 py-2.5 rounded-md text-sm bg-secondary border-none focus:outline-none focus:ring-2 focus:ring-ring" required />
         </div>
 
         {price > 0 && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            className="bg-secondary rounded-lg p-4 space-y-2"
-          >
+          <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="bg-secondary rounded-lg p-4 space-y-2">
             <h4 className="font-display font-semibold text-sm mb-2">Commission Breakdown</h4>
-            <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">Price</span>
-              <span>NLe {price.toLocaleString()}</span>
-            </div>
-            <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">Platform Fee ({COMMISSION_RATE}%)</span>
-              <span className="text-destructive">- NLe {commission.toLocaleString()}</span>
-            </div>
-            <div className="flex justify-between text-sm font-bold border-t pt-2">
-              <span>You Will Earn</span>
-              <span className="text-primary">NLe {earnings.toLocaleString()}</span>
-            </div>
+            <div className="flex justify-between text-sm"><span className="text-muted-foreground">Price</span><span>NLe {price.toLocaleString()}</span></div>
+            <div className="flex justify-between text-sm"><span className="text-muted-foreground">Platform Fee ({COMMISSION_RATE}%)</span><span className="text-destructive">- NLe {commission.toLocaleString()}</span></div>
+            <div className="flex justify-between text-sm font-bold border-t pt-2"><span>You Will Earn</span><span className="text-primary">NLe {earnings.toLocaleString()}</span></div>
           </motion.div>
         )}
 
-        <button
-          type="submit"
-          className="w-full bg-primary text-primary-foreground py-3 rounded-md font-medium text-sm hover:opacity-90 transition-opacity"
-        >
-          Upload Artwork
+        <button type="submit" disabled={uploading} className="w-full bg-primary text-primary-foreground py-3 rounded-md font-medium text-sm hover:opacity-90 transition-opacity disabled:opacity-50">
+          {uploading ? "Uploading..." : "Upload Artwork"}
         </button>
       </form>
     </div>
   );
 }
 
-function EarningsTab({ earnings, currency }: { earnings: typeof mockEarnings; currency: string }) {
+function EarningsTab({ artworks, currency }: { artworks: ArtworkRow[]; currency: string }) {
+  const totalSales = artworks.filter(a => a.sold).reduce((s, a) => s + a.price, 0);
+  const netEarnings = totalSales * 0.9;
+
   const stats = [
-    { label: "Total Earnings", value: earnings.total, icon: TrendingUp, color: "text-primary" },
-    { label: "Pending", value: earnings.pending, icon: Eye, color: "text-accent" },
-    { label: "Completed", value: earnings.completed, icon: Package, color: "text-primary" },
-    { label: "Withdrawable", value: earnings.withdrawable, icon: DollarSign, color: "text-primary" },
+    { label: "Total Sales", value: totalSales, icon: TrendingUp },
+    { label: "Net Earnings", value: netEarnings, icon: DollarSign },
+    { label: "Artworks Listed", value: artworks.length, icon: Package, raw: true },
+    { label: "Sold", value: artworks.filter(a => a.sold).length, icon: Eye, raw: true },
   ];
 
   return (
     <div>
       <h2 className="font-display text-xl font-bold mb-6">Earnings Overview</h2>
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {stats.map((stat, i) => (
-          <motion.div
-            key={stat.label}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.1 }}
-            className="bg-card rounded-lg border p-4"
-          >
+          <motion.div key={stat.label} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }} className="bg-card rounded-lg border p-4">
             <div className="flex items-center gap-2 mb-2">
-              <stat.icon className={`h-4 w-4 ${stat.color}`} />
+              <stat.icon className="h-4 w-4 text-primary" />
               <span className="text-xs text-muted-foreground">{stat.label}</span>
             </div>
-            <p className="font-display text-lg font-bold">{convertPrice(stat.value, currency)}</p>
+            <p className="font-display text-lg font-bold">
+              {(stat as any).raw ? stat.value : convertPrice(stat.value, currency)}
+            </p>
           </motion.div>
         ))}
-      </div>
-
-      <div className="bg-card rounded-lg border p-6">
-        <h3 className="font-display font-semibold mb-4">Recent Transactions</h3>
-        <div className="space-y-3">
-          {[
-            { title: "Mother & Child - Sold", amount: 4950, status: "Completed", date: "Mar 20" },
-            { title: "Rhythms of the Ancestors - Sold", amount: 2250, status: "Pending", date: "Mar 25" },
-            { title: "Woven Heritage - Sold", amount: 2790, status: "Completed", date: "Mar 15" },
-          ].map(tx => (
-            <div key={tx.title} className="flex items-center justify-between py-2 border-b last:border-0">
-              <div>
-                <p className="text-sm font-medium">{tx.title}</p>
-                <p className="text-xs text-muted-foreground">{tx.date}</p>
-              </div>
-              <div className="text-right">
-                <p className="text-sm font-semibold text-primary">{convertPrice(tx.amount, currency)}</p>
-                <p className={`text-xs ${tx.status === "Completed" ? "text-primary" : "text-accent"}`}>{tx.status}</p>
-              </div>
-            </div>
-          ))}
-        </div>
       </div>
     </div>
   );
@@ -271,20 +276,7 @@ function NotificationsTab() {
   return (
     <div className="max-w-xl">
       <h2 className="font-display text-xl font-bold mb-6">Notifications</h2>
-      <div className="space-y-2">
-        {mockNotifications.map(notif => (
-          <div
-            key={notif.id}
-            className={`flex items-center gap-3 p-4 rounded-lg border ${!notif.read ? "bg-secondary" : "bg-card"}`}
-          >
-            <div className={`h-2 w-2 rounded-full flex-shrink-0 ${!notif.read ? "bg-primary" : "bg-transparent"}`} />
-            <div className="flex-1">
-              <p className="text-sm">{notif.text}</p>
-              <p className="text-xs text-muted-foreground mt-0.5">{notif.time}</p>
-            </div>
-          </div>
-        ))}
-      </div>
+      <p className="text-center text-muted-foreground py-12">No notifications yet.</p>
     </div>
   );
 }

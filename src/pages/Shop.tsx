@@ -1,19 +1,48 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
-import { artworks, categories } from "@/lib/data";
+import { artworks as mockArtworks, categories, convertPrice } from "@/lib/data";
+import { supabase } from "@/integrations/supabase/client";
 import ArtworkCard from "@/components/ArtworkCard";
+import { Artwork } from "@/lib/data";
 
-type SortOption = "newest" | "price-low" | "price-high" | "popular";
+type SortOption = "newest" | "price-low" | "price-high";
 
 export default function Shop() {
   const [searchParams] = useSearchParams();
   const initialCat = searchParams.get("category") || "All";
   const [selectedCategory, setSelectedCategory] = useState(initialCat);
   const [sort, setSort] = useState<SortOption>("newest");
+  const [dbArtworks, setDbArtworks] = useState<Artwork[]>([]);
 
+  useEffect(() => {
+    const fetchDbArtworks = async () => {
+      const { data } = await supabase.from("artworks").select("*");
+      if (data) {
+        const profiles = await supabase.from("profiles").select("user_id, full_name");
+        const profileMap = new Map((profiles.data || []).map(p => [p.user_id, p.full_name]));
+        
+        const mapped: Artwork[] = data.map(a => ({
+          id: `db-${a.id}`,
+          title: a.title,
+          artistId: a.artist_id,
+          artistName: profileMap.get(a.artist_id) || "Unknown Artist",
+          price: Number(a.price),
+          image: a.image_url || "",
+          category: a.category,
+          description: a.description || "",
+          sold: a.sold,
+        }));
+        setDbArtworks(mapped);
+      }
+    };
+    fetchDbArtworks();
+  }, []);
+
+  const allArtworks = [...mockArtworks, ...dbArtworks];
+  
   let filtered = selectedCategory === "All"
-    ? artworks
-    : artworks.filter(a => a.category === selectedCategory);
+    ? allArtworks
+    : allArtworks.filter(a => a.category === selectedCategory);
 
   if (sort === "price-low") filtered = [...filtered].sort((a, b) => a.price - b.price);
   else if (sort === "price-high") filtered = [...filtered].sort((a, b) => b.price - a.price);
@@ -50,11 +79,10 @@ export default function Shop() {
           <option value="newest">Newest</option>
           <option value="price-low">Price: Low to High</option>
           <option value="price-high">Price: High to Low</option>
-          <option value="popular">Most Popular</option>
         </select>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
         {filtered.map((a, i) => (
           <ArtworkCard key={a.id} artwork={a} index={i} />
         ))}
