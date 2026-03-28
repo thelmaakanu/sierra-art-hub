@@ -62,6 +62,273 @@ export type Database = {
         }
         Relationships: []
       }
+      artworks: {
+        Row: {
+          artist_id: string
+          category: string
+          created_at: string
+          description: string | null
+          id: string
+          image_url: string | null
+          price: number
+          sold: boolean
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          artist_id: string
+          category?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          price?: number
+          sold?: boolean
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          artist_id?: string
+          category?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          price?: number
+          sold?: boolean
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      comments: {
+        Row: {
+          author_id: string
+          content: string
+          created_at: string
+          id: string
+          parent_id: string | null
+          post_id: string
+        }
+        Insert: {
+          author_id: string
+          content: string
+          created_at?: string
+          id?: string
+          parent_id?: string | null
+          post_id: string
+        }
+        Update: {
+          author_id?: string
+          content?: string
+          created_at?: string
+          id?: string
+          parent_id?: string | null
+          post_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comments_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "comments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comments_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      contact_submissions: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          message: string
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          message: string
+          name: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          message?: string
+          name?: string
+        }
+        Relationships: []
+      }
+      exhibition_join_requests: {
+        Row: {
+          artist_id: string
+          artist_name: string
+          created_at: string
+          exhibition_id: string
+          id: string
+          message: string | null
+          portfolio_link: string | null
+          status: string
+        }
+        Insert: {
+          artist_id: string
+          artist_name: string
+          created_at?: string
+          exhibition_id: string
+          id?: string
+          message?: string | null
+          portfolio_link?: string | null
+          status?: string
+        }
+        Update: {
+          artist_id?: string
+          artist_name?: string
+          created_at?: string
+          exhibition_id?: string
+          id?: string
+          message?: string | null
+          portfolio_link?: string | null
+          status?: string
+        }
+        Relationships: []
+      }
+      exhibition_tickets: {
+        Row: {
+          buyer_email: string
+          buyer_id: string
+          buyer_name: string
+          exhibition_title: string
+          id: string
+          purchased_at: string
+          quantity: number
+          total_price: number
+        }
+        Insert: {
+          buyer_email: string
+          buyer_id: string
+          buyer_name: string
+          exhibition_title: string
+          id?: string
+          purchased_at?: string
+          quantity?: number
+          total_price?: number
+        }
+        Update: {
+          buyer_email?: string
+          buyer_id?: string
+          buyer_name?: string
+          exhibition_title?: string
+          id?: string
+          purchased_at?: string
+          quantity?: number
+          total_price?: number
+        }
+        Relationships: []
+      }
+      host_exhibition_requests: {
+        Row: {
+          created_at: string
+          email: string
+          exhibition_idea: string
+          id: string
+          location: string
+          name: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          exhibition_idea: string
+          id?: string
+          location: string
+          name: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          exhibition_idea?: string
+          id?: string
+          location?: string
+          name?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      likes: {
+        Row: {
+          comment_id: string | null
+          created_at: string
+          id: string
+          post_id: string | null
+          user_id: string
+        }
+        Insert: {
+          comment_id?: string | null
+          created_at?: string
+          id?: string
+          post_id?: string | null
+          user_id: string
+        }
+        Update: {
+          comment_id?: string | null
+          created_at?: string
+          id?: string
+          post_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "likes_comment_id_fkey"
+            columns: ["comment_id"]
+            isOneToOne: false
+            referencedRelation: "comments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "likes_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      posts: {
+        Row: {
+          author_id: string
+          content: string
+          created_at: string
+          id: string
+          image_url: string | null
+        }
+        Insert: {
+          author_id: string
+          content: string
+          created_at?: string
+          id?: string
+          image_url?: string | null
+        }
+        Update: {
+          author_id?: string
+          content?: string
+          created_at?: string
+          id?: string
+          image_url?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
