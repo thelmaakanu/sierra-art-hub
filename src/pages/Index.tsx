@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { ArrowRight, Palette, Globe, ShieldCheck } from "lucide-react";
+import { ArrowRight, Palette, Globe, ShieldCheck, Star } from "lucide-react";
 import { motion } from "framer-motion";
 import { artists, artworks, exhibitions, categories } from "@/lib/data";
 import ArtworkCard from "@/components/ArtworkCard";
@@ -7,8 +7,10 @@ import ArtistCard from "@/components/ArtistCard";
 import heroImg from "@/assets/hero-art.jpg";
 
 const Index = () => {
-  const featuredArt = artworks.filter(a => !a.sold).slice(0, 4);
-  const upcomingExhibition = exhibitions.find(e => e.upcoming);
+  const featuredArt = artworks.filter(a => !a.sold).slice(0, 8);
+  const trendingArt = [...artworks].sort((a, b) => b.price - a.price).slice(0, 4);
+  const featuredArtists = artists.slice(0, 5);
+  const upcomingExhibitions = exhibitions.filter(e => e.upcoming);
 
   return (
     <div>
@@ -40,10 +42,10 @@ const Index = () => {
                 Explore Collection <ArrowRight className="h-4 w-4" />
               </Link>
               <Link
-                to="/artists"
+                to="/register"
                 className="inline-flex items-center gap-2 border border-primary-foreground/30 text-primary-foreground px-7 py-3.5 rounded-md font-medium text-sm hover:bg-primary-foreground/10 transition-colors"
               >
-                Meet the Artists
+                Join as Artist
               </Link>
             </div>
           </motion.div>
@@ -90,8 +92,8 @@ const Index = () => {
               View All <ArrowRight className="h-3 w-3" />
             </Link>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-8">
-            {artists.map((a, i) => (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
+            {featuredArtists.map((a, i) => (
               <ArtistCard key={a.id} artist={a} index={i} />
             ))}
           </div>
@@ -111,7 +113,30 @@ const Index = () => {
             </Link>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {featuredArt.map((a, i) => (
+            {trendingArt.map((a, i) => (
+              <ArtworkCard key={a.id} artwork={a} index={i} />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* New Arrivals */}
+      <section className="py-20">
+        <div className="container">
+          <div className="flex items-end justify-between mb-12">
+            <div>
+              <div className="flex items-center gap-2 mb-2">
+                <Star className="h-4 w-4 text-primary" />
+                <p className="text-xs tracking-[0.2em] uppercase text-muted-foreground">Fresh Collection</p>
+              </div>
+              <h2 className="font-display text-3xl md:text-4xl font-bold">New Arrivals</h2>
+            </div>
+            <Link to="/shop" className="text-sm font-medium text-primary hover:underline flex items-center gap-1">
+              View All <ArrowRight className="h-3 w-3" />
+            </Link>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            {featuredArt.slice(4, 8).map((a, i) => (
               <ArtworkCard key={a.id} artwork={a} index={i} />
             ))}
           </div>
@@ -119,7 +144,7 @@ const Index = () => {
       </section>
 
       {/* Categories */}
-      <section className="py-20">
+      <section className="py-20 bg-card">
         <div className="container">
           <div className="text-center mb-12">
             <p className="text-xs tracking-[0.2em] uppercase text-muted-foreground mb-2">Browse By</p>
@@ -139,42 +164,65 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Exhibition CTA */}
-      {upcomingExhibition && (
-        <section className="py-20 bg-card">
+      {/* Exhibitions */}
+      {upcomingExhibitions.length > 0 && (
+        <section className="py-20">
           <div className="container">
-            <div className="grid md:grid-cols-2 gap-10 items-center">
-              <motion.div
-                initial={{ opacity: 0, x: -30 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.6 }}
-                viewport={{ once: true }}
-              >
-                <p className="text-xs tracking-[0.2em] uppercase text-muted-foreground mb-2">Upcoming</p>
-                <h2 className="font-display text-3xl md:text-4xl font-bold mb-4">{upcomingExhibition.title}</h2>
-                <p className="text-muted-foreground mb-2">{upcomingExhibition.date}</p>
-                <p className="text-muted-foreground mb-2">{upcomingExhibition.location}</p>
-                <p className="text-sm text-muted-foreground mb-6">{upcomingExhibition.description}</p>
-                <Link
-                  to="/exhibitions"
-                  className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-6 py-3 rounded-md font-medium text-sm hover:opacity-90 transition-opacity"
+            <div className="flex items-end justify-between mb-12">
+              <div>
+                <p className="text-xs tracking-[0.2em] uppercase text-muted-foreground mb-2">Upcoming Events</p>
+                <h2 className="font-display text-3xl md:text-4xl font-bold">Featured Exhibitions</h2>
+              </div>
+              <Link to="/exhibitions" className="text-sm font-medium text-primary hover:underline flex items-center gap-1">
+                View All <ArrowRight className="h-3 w-3" />
+              </Link>
+            </div>
+            <div className="grid md:grid-cols-2 gap-8">
+              {upcomingExhibitions.map((ex, i) => (
+                <motion.div
+                  key={ex.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: i * 0.15 }}
+                  viewport={{ once: true }}
+                  className="bg-card border rounded-xl overflow-hidden hover:shadow-lg transition-shadow duration-300"
                 >
-                  View Exhibitions <ArrowRight className="h-4 w-4" />
-                </Link>
-              </motion.div>
-              <motion.div
-                initial={{ opacity: 0, x: 30 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.6 }}
-                viewport={{ once: true }}
-                className="rounded-xl overflow-hidden aspect-[4/3]"
-              >
-                <img src={upcomingExhibition.image} alt={upcomingExhibition.title} loading="lazy" className="h-full w-full object-cover" />
-              </motion.div>
+                  <div className="aspect-[16/9] overflow-hidden">
+                    <img src={ex.image} alt={ex.title} loading="lazy" className="h-full w-full object-cover hover:scale-105 transition-transform duration-500" />
+                  </div>
+                  <div className="p-6">
+                    <p className="text-xs text-primary font-semibold uppercase tracking-wider mb-2">{ex.date}</p>
+                    <h3 className="font-display text-xl font-bold mb-2">{ex.title}</h3>
+                    <p className="text-sm text-muted-foreground mb-1">{ex.location}</p>
+                    <p className="text-sm text-muted-foreground mb-4 line-clamp-2">{ex.description}</p>
+                    <Link to="/exhibitions" className="text-sm font-medium text-primary hover:underline inline-flex items-center gap-1">
+                      Learn More <ArrowRight className="h-3 w-3" />
+                    </Link>
+                  </div>
+                </motion.div>
+              ))}
             </div>
           </div>
         </section>
       )}
+
+      {/* CTA */}
+      <section className="py-24 bg-primary text-primary-foreground">
+        <div className="container text-center max-w-2xl mx-auto">
+          <h2 className="font-display text-3xl md:text-4xl font-bold mb-4">Ready to Start Your Collection?</h2>
+          <p className="text-primary-foreground/80 text-base mb-8">
+            Join thousands of art lovers supporting Sierra Leonean artists and owning a piece of authentic African heritage.
+          </p>
+          <div className="flex flex-wrap justify-center gap-4">
+            <Link to="/shop" className="inline-flex items-center gap-2 bg-background text-foreground px-8 py-3.5 rounded-md font-medium text-sm hover:opacity-90 transition-opacity">
+              Browse Collection <ArrowRight className="h-4 w-4" />
+            </Link>
+            <Link to="/register" className="inline-flex items-center gap-2 border border-primary-foreground/30 text-primary-foreground px-8 py-3.5 rounded-md font-medium text-sm hover:bg-primary-foreground/10 transition-colors">
+              Create Account
+            </Link>
+          </div>
+        </div>
+      </section>
     </div>
   );
 };
