@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Eye, EyeOff, AlertCircle, CheckCircle2, Upload } from "lucide-react";
+import { Eye, EyeOff, AlertCircle, CheckCircle2, Upload, Palette, ShoppingBag } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -9,16 +9,20 @@ import { motion, AnimatePresence } from "framer-motion";
 type UserType = "buyer" | "artist";
 
 export default function Register() {
+  const [step, setStep] = useState<"type" | "form">("type");
   const [userType, setUserType] = useState<UserType>("buyer");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const { signUp, user } = useAuth();
+  const { signUp } = useAuth();
   const navigate = useNavigate();
 
-  // Form fields
+  // Common fields
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
+
+  // Buyer fields
   const [country, setCountry] = useState("");
   const [shippingAddress, setShippingAddress] = useState("");
 
@@ -52,10 +56,17 @@ export default function Register() {
 
     setLoading(true);
 
-    // Step 1: Sign up the user
-    const { error } = await signUp(email, password, fullName, {
+    const metadata: Record<string, string> = {
       country: userType === "buyer" ? country : "Sierra Leone",
-    });
+      user_type: userType,
+    };
+
+    if (userType === "artist") {
+      metadata.phone = phone.replace(/\s/g, "");
+      metadata.bio = bio;
+    }
+
+    const { error } = await signUp(email, password, fullName, metadata);
 
     if (error) {
       toast.error(error.message);
@@ -63,50 +74,88 @@ export default function Register() {
       return;
     }
 
-    // For buyers, update profile with country and address
-    if (userType === "buyer") {
-      // Profile is auto-created by trigger; update with buyer details
-      // We need to wait for auth to complete, so we listen for session
+    // Update profile with phone number for all users
+    // This happens after the trigger creates the profile
+    // We'll update it after redirect
+
+    if (userType === "artist") {
+      toast.success("Account created! Check your email to verify, then your artist application will be reviewed.");
+    } else {
       toast.success("Account created! Check your email to verify your account.");
-      setLoading(false);
-      navigate("/login");
-      return;
     }
 
-    // For artists, we need to submit the application after signup
-    toast.success("Account created! Check your email to verify, then your artist application will be reviewed.");
     setLoading(false);
     navigate("/login");
   };
 
+  if (step === "type") {
+    return (
+      <div className="container py-16 max-w-lg mx-auto">
+        <div className="text-center mb-10">
+          <h1 className="font-display text-3xl font-bold mb-2">Join ArtVault</h1>
+          <p className="text-muted-foreground text-sm">Choose your account type to get started</p>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+          <button
+            onClick={() => { setUserType("buyer"); setStep("form"); }}
+            className="group relative bg-card border-2 border-border hover:border-primary rounded-xl p-8 text-center transition-all duration-300 hover:shadow-lg"
+          >
+            <div className="mx-auto w-16 h-16 rounded-full bg-secondary flex items-center justify-center mb-4 group-hover:bg-primary/10 transition-colors">
+              <ShoppingBag className="h-8 w-8 text-primary" />
+            </div>
+            <h3 className="font-display text-lg font-bold mb-2">Buyer</h3>
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              Browse, discover, and purchase authentic Sierra Leonean art from verified artists
+            </p>
+          </button>
+
+          <button
+            onClick={() => { setUserType("artist"); setStep("form"); }}
+            className="group relative bg-card border-2 border-border hover:border-primary rounded-xl p-8 text-center transition-all duration-300 hover:shadow-lg"
+          >
+            <div className="mx-auto w-16 h-16 rounded-full bg-secondary flex items-center justify-center mb-4 group-hover:bg-primary/10 transition-colors">
+              <Palette className="h-8 w-8 text-primary" />
+            </div>
+            <h3 className="font-display text-lg font-bold mb-2">Artist</h3>
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              Showcase and sell your art to a global audience. Sierra Leonean nationals only
+            </p>
+            <span className="inline-block mt-3 text-[10px] font-bold uppercase tracking-wider text-primary bg-primary/10 px-2 py-1 rounded">
+              🇸🇱 Sierra Leone Only
+            </span>
+          </button>
+        </div>
+
+        <p className="text-center text-sm text-muted-foreground">
+          Already have an account?{" "}
+          <Link to="/login" className="text-primary font-medium hover:underline">Sign in</Link>
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="container py-16 max-w-md mx-auto">
-      <div className="text-center mb-8">
-        <h1 className="font-display text-3xl font-bold mb-2">Join ArtVault</h1>
-        <p className="text-muted-foreground text-sm">Create your account to start exploring</p>
-      </div>
-
-      {/* User Type Toggle */}
-      <div className="flex rounded-lg bg-secondary p-1 mb-6">
-        {(["buyer", "artist"] as const).map(type => (
-          <button
-            key={type}
-            type="button"
-            onClick={() => setUserType(type)}
-            className={`flex-1 py-2.5 rounded-md text-sm font-medium transition-colors ${
-              userType === type ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            {type === "buyer" ? "Buyer" : "Artist"}
-          </button>
-        ))}
+      <div className="flex items-center gap-3 mb-8">
+        <button onClick={() => setStep("type")} className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+          ← Back
+        </button>
+        <div className="text-center flex-1">
+          <h1 className="font-display text-2xl font-bold mb-1">
+            {userType === "buyer" ? "Create Buyer Account" : "Apply as Artist"}
+          </h1>
+          <p className="text-muted-foreground text-xs">
+            {userType === "buyer" ? "Open to all countries" : "Sierra Leonean nationals only 🇸🇱"}
+          </p>
+        </div>
       </div>
 
       {userType === "artist" && (
         <div className="bg-accent/20 border border-accent/30 rounded-lg p-3 mb-6 flex items-start gap-2">
           <AlertCircle className="h-4 w-4 text-accent mt-0.5 flex-shrink-0" />
           <p className="text-xs text-accent-foreground">
-            Artist registration is restricted to Sierra Leonean nationals. You must provide a valid Sierra Leone phone number (+232) for verification. Your application will be reviewed by our team.
+            Artist registration requires a valid Sierra Leone phone number (+232). Your application will be reviewed by our team.
           </p>
         </div>
       )}
@@ -134,6 +183,10 @@ export default function Register() {
 
         {userType === "buyer" && (
           <>
+            <div>
+              <label className="block text-sm font-medium mb-1.5">Phone Number (Optional)</label>
+              <input type="tel" value={phoneNumber} onChange={e => setPhoneNumber(e.target.value)} placeholder="+1234567890" className="w-full px-3 py-2.5 rounded-md text-sm bg-secondary border-none focus:outline-none focus:ring-2 focus:ring-ring" />
+            </div>
             <div>
               <label className="block text-sm font-medium mb-1.5">Country</label>
               <select value={country} onChange={e => setCountry(e.target.value)} required className="w-full px-3 py-2.5 rounded-md text-sm bg-secondary border-none focus:outline-none focus:ring-2 focus:ring-ring">

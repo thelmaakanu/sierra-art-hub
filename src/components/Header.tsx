@@ -78,19 +78,17 @@ export default function Header() {
 
           {user ? (
             <>
-              {profile?.user_type === "artist" && (
-                <Link to="/dashboard" className="hidden md:flex p-2 hover:text-primary transition-colors" title="Dashboard">
-                  <LayoutDashboard className="h-5 w-5" />
-                </Link>
-              )}
+              <Link to="/dashboard" className="hidden md:flex p-2 hover:text-primary transition-colors" title="Dashboard">
+                <LayoutDashboard className="h-5 w-5" />
+              </Link>
               <button onClick={signOut} className="hidden md:flex p-2 hover:text-destructive transition-colors" title="Sign out">
                 <LogOut className="h-5 w-5" />
               </button>
-              <div className="hidden md:flex items-center pl-1">
+              <Link to="/dashboard" className="hidden md:flex items-center pl-1">
                 <div className="h-8 w-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-bold">
                   {(profile?.full_name || user.email || "U")[0].toUpperCase()}
                 </div>
-              </div>
+              </Link>
             </>
           ) : (
             <Link to="/login" className="hidden md:flex p-2 hover:text-primary transition-colors" title="Login">
@@ -130,11 +128,9 @@ export default function Header() {
           </div>
           {user ? (
             <>
-              {profile?.user_type === "artist" && (
-                <Link to="/dashboard" onClick={() => setMobileOpen(false)} className="block text-base font-medium text-muted-foreground py-1">
-                  Dashboard
-                </Link>
-              )}
+              <Link to="/dashboard" onClick={() => setMobileOpen(false)} className="block text-base font-medium text-muted-foreground py-1">
+                My Profile
+              </Link>
               <button onClick={() => { signOut(); setMobileOpen(false); }} className="block text-base font-medium text-destructive py-1">
                 Sign Out
               </button>

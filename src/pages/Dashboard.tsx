@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Upload, Edit3, Trash2, DollarSign, TrendingUp, Eye, Package, Bell, Image as ImageIcon } from "lucide-react";
+import { Upload, Trash2, DollarSign, TrendingUp, Eye, Package, Bell, Image as ImageIcon, Edit3, ShoppingBag, Heart, Settings, Sparkles } from "lucide-react";
 import { convertPrice, categories } from "@/lib/data";
 import { useCart } from "@/lib/cart";
 import { useAuth } from "@/lib/auth";
@@ -9,8 +9,6 @@ import { toast } from "sonner";
 import { Link, useNavigate } from "react-router-dom";
 
 const COMMISSION_RATE = 10;
-
-type Tab = "gallery" | "upload" | "earnings" | "notifications";
 
 interface ArtworkRow {
   id: string;
@@ -27,17 +25,43 @@ export default function Dashboard() {
   const { user, profile, loading: authLoading } = useAuth();
   const { currency } = useCart();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<Tab>("gallery");
+  const isArtist = profile?.user_type === "artist";
+  const [showWelcome, setShowWelcome] = useState(false);
+
+  const artistTabs: { key: string; label: string; icon: React.ElementType }[] = [
+    { key: "gallery", label: "My Gallery", icon: ImageIcon },
+    { key: "upload", label: "Upload Art", icon: Upload },
+    { key: "earnings", label: "Earnings", icon: DollarSign },
+    { key: "notifications", label: "Notifications", icon: Bell },
+  ];
+
+  const buyerTabs: { key: string; label: string; icon: React.ElementType }[] = [
+    { key: "overview", label: "Overview", icon: Eye },
+    { key: "notifications", label: "Notifications", icon: Bell },
+  ];
+
+  const tabs = isArtist ? artistTabs : buyerTabs;
+  const [activeTab, setActiveTab] = useState(tabs[0].key);
   const [artworks, setArtworks] = useState<ArtworkRow[]>([]);
 
   useEffect(() => {
     if (!authLoading && !user) navigate("/login");
-    if (!authLoading && profile && profile.user_type !== "artist") navigate("/");
-  }, [user, profile, authLoading]);
+  }, [user, authLoading]);
 
   useEffect(() => {
-    if (user) fetchArtworks();
-  }, [user]);
+    if (user && isArtist) fetchArtworks();
+  }, [user, isArtist]);
+
+  // Show welcome for new users
+  useEffect(() => {
+    if (user && profile) {
+      const welcomed = sessionStorage.getItem(`welcomed_${user.id}`);
+      if (!welcomed) {
+        setShowWelcome(true);
+        sessionStorage.setItem(`welcomed_${user.id}`, "true");
+      }
+    }
+  }, [user, profile]);
 
   const fetchArtworks = async () => {
     if (!user) return;
@@ -45,18 +69,42 @@ export default function Dashboard() {
     setArtworks((data as ArtworkRow[]) || []);
   };
 
-  const tabs: { key: Tab; label: string; icon: React.ElementType }[] = [
-    { key: "gallery", label: "My Gallery", icon: ImageIcon },
-    { key: "upload", label: "Upload Art", icon: Upload },
-    { key: "earnings", label: "Earnings", icon: DollarSign },
-    { key: "notifications", label: "Notifications", icon: Bell },
-  ];
-
   if (authLoading) return <div className="container py-20 text-center text-muted-foreground">Loading...</div>;
   if (!user || !profile) return null;
 
   return (
     <div className="container py-8">
+      {/* Welcome Banner */}
+      {showWelcome && (
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-primary/10 border border-primary/20 rounded-xl p-6 mb-8 relative"
+        >
+          <button onClick={() => setShowWelcome(false)} className="absolute top-3 right-3 text-muted-foreground hover:text-foreground text-sm">✕</button>
+          <div className="flex items-start gap-3">
+            <Sparkles className="h-6 w-6 text-primary flex-shrink-0 mt-0.5" />
+            <div>
+              <h2 className="font-display text-lg font-bold mb-1">Welcome to ArtVault, {profile.full_name}! 🎉</h2>
+              <p className="text-sm text-muted-foreground mb-4">Your account is set up. Here's what you can do next:</p>
+              <div className="flex flex-wrap gap-3">
+                <Link to="/shop" className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-md text-sm font-medium hover:opacity-90 transition-opacity">
+                  <ShoppingBag className="h-4 w-4" /> Explore Shop
+                </Link>
+                {isArtist && (
+                  <button onClick={() => { setActiveTab("upload"); setShowWelcome(false); }} className="inline-flex items-center gap-2 bg-secondary text-secondary-foreground px-4 py-2 rounded-md text-sm font-medium hover:opacity-90 transition-opacity">
+                    <Upload className="h-4 w-4" /> Upload First Artwork
+                  </button>
+                )}
+                <Link to="/artists" className="inline-flex items-center gap-2 border border-border px-4 py-2 rounded-md text-sm font-medium hover:bg-secondary transition-colors">
+                  Meet Artists
+                </Link>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+      )}
+
       {/* Profile Header */}
       <div className="flex flex-col md:flex-row items-start gap-6 mb-10">
         <div className="h-20 w-20 rounded-full overflow-hidden ring-4 ring-secondary flex-shrink-0 bg-primary text-primary-foreground flex items-center justify-center text-2xl font-bold">
@@ -68,12 +116,47 @@ export default function Dashboard() {
         </div>
         <div className="flex-1">
           <h1 className="font-display text-2xl md:text-3xl font-bold mb-1">{profile.full_name}</h1>
-          <p className="text-sm text-muted-foreground mb-3">{profile.bio || "Sierra Leonean Artist"}</p>
-          <div className="flex gap-6 text-sm">
-            <div><span className="font-bold">{artworks.length}</span> <span className="text-muted-foreground">Artworks</span></div>
+          <div className="flex items-center gap-2 mb-2">
+            <span className={`inline-flex items-center gap-1 text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-full ${
+              isArtist ? "bg-primary/10 text-primary" : "bg-secondary text-secondary-foreground"
+            }`}>
+              {isArtist ? "🎨 Artist" : "🛍️ Buyer"}
+            </span>
           </div>
+          <p className="text-sm text-muted-foreground mb-3">{profile.bio || (isArtist ? "Sierra Leonean Artist" : "Art enthusiast")}</p>
+          {isArtist && (
+            <div className="flex gap-6 text-sm">
+              <div><span className="font-bold">{artworks.length}</span> <span className="text-muted-foreground">Artworks</span></div>
+            </div>
+          )}
+        </div>
+        <div className="flex gap-2">
+          <Link to="/wishlist" className="inline-flex items-center gap-2 px-4 py-2 bg-secondary text-secondary-foreground rounded-md text-sm font-medium hover:opacity-80 transition-opacity">
+            <Heart className="h-4 w-4" /> Wishlist
+          </Link>
         </div>
       </div>
+
+      {/* Quick Actions */}
+      {!isArtist && (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
+          {[
+            { label: "Browse Shop", icon: ShoppingBag, to: "/shop" },
+            { label: "My Wishlist", icon: Heart, to: "/wishlist" },
+            { label: "Exhibitions", icon: Eye, to: "/exhibitions" },
+            { label: "Community", icon: Edit3, to: "/community" },
+          ].map((action) => (
+            <Link
+              key={action.label}
+              to={action.to}
+              className="flex flex-col items-center gap-2 p-6 bg-card border rounded-xl hover:border-primary/50 hover:shadow-md transition-all duration-300 text-center"
+            >
+              <action.icon className="h-6 w-6 text-primary" />
+              <span className="text-sm font-medium">{action.label}</span>
+            </Link>
+          ))}
+        </div>
+      )}
 
       {/* Tabs */}
       <div className="flex gap-1 mb-8 overflow-x-auto border-b -mx-4 px-4 md:mx-0 md:px-0">
@@ -91,10 +174,31 @@ export default function Dashboard() {
         ))}
       </div>
 
-      {activeTab === "gallery" && <GalleryTab works={artworks} currency={currency} onRefresh={fetchArtworks} />}
-      {activeTab === "upload" && <UploadTab userId={user.id} onUploaded={() => { fetchArtworks(); setActiveTab("gallery"); }} />}
-      {activeTab === "earnings" && <EarningsTab artworks={artworks} currency={currency} />}
+      {activeTab === "overview" && <BuyerOverview />}
+      {activeTab === "gallery" && isArtist && <GalleryTab works={artworks} currency={currency} onRefresh={fetchArtworks} />}
+      {activeTab === "upload" && isArtist && <UploadTab userId={user.id} onUploaded={() => { fetchArtworks(); setActiveTab("gallery"); }} />}
+      {activeTab === "earnings" && isArtist && <EarningsTab artworks={artworks} currency={currency} />}
       {activeTab === "notifications" && <NotificationsTab />}
+    </div>
+  );
+}
+
+function BuyerOverview() {
+  return (
+    <div>
+      <h2 className="font-display text-xl font-bold mb-6">Your Activity</h2>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <Link to="/shop" className="bg-card border rounded-xl p-8 hover:border-primary/50 hover:shadow-md transition-all duration-300">
+          <ShoppingBag className="h-8 w-8 text-primary mb-3" />
+          <h3 className="font-display font-semibold text-base mb-1">Explore Art</h3>
+          <p className="text-sm text-muted-foreground">Discover authentic Sierra Leonean artworks from verified artists</p>
+        </Link>
+        <Link to="/exhibitions" className="bg-card border rounded-xl p-8 hover:border-primary/50 hover:shadow-md transition-all duration-300">
+          <Eye className="h-8 w-8 text-primary mb-3" />
+          <h3 className="font-display font-semibold text-base mb-1">Exhibitions</h3>
+          <p className="text-sm text-muted-foreground">Browse upcoming exhibitions and get your tickets</p>
+        </Link>
+      </div>
     </div>
   );
 }
