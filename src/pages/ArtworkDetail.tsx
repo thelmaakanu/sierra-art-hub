@@ -67,32 +67,12 @@ export default function ArtworkDetail() {
   const wishlisted = isWishlisted(artwork.id);
   const shareUrl = window.location.href;
 
-  const handleBuyNow = async () => {
+  const handleAddToCart = () => {
     if (!user) {
-      toast.error("Please log in to purchase");
+      toast.error("Please log in to add items to cart");
       return;
     }
     if (artwork.sold) return;
-
-    setPurchasing(true);
-
-    // If it's a DB artwork, mark as sold
-    if (artwork.id.startsWith("db-")) {
-      const dbId = artwork.id.replace("db-", "");
-      const { error } = await supabase.from("artworks").update({ sold: true }).eq("id", dbId);
-      if (error) {
-        toast.error("Purchase failed. Please try again.");
-        setPurchasing(false);
-        return;
-      }
-      setArtwork({ ...artwork, sold: true });
-    }
-
-    toast.success(`🎉 You've purchased "${artwork.title}"!`);
-    setPurchasing(false);
-  };
-
-  const handleAddToCart = () => {
     addItem(artwork);
     toast.success(`"${artwork.title}" added to cart`);
   };
