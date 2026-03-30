@@ -85,8 +85,12 @@ export default function Header() {
                 <LogOut className="h-5 w-5" />
               </button>
               <Link to="/dashboard" className="hidden md:flex items-center pl-1">
-                <div className="h-8 w-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-bold">
-                  {(profile?.full_name || user.email || "U")[0].toUpperCase()}
+                <div className="h-8 w-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-bold overflow-hidden">
+                  {profile?.avatar_url ? (
+                    <img src={profile.avatar_url} alt="" className="h-full w-full object-cover" />
+                  ) : (
+                    (profile?.full_name || user.email || "U")[0].toUpperCase()
+                  )}
                 </div>
               </Link>
             </>

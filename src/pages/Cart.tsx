@@ -1,16 +1,19 @@
 import { Link } from "react-router-dom";
-import { Trash2, ArrowLeft } from "lucide-react";
+import { Trash2, ArrowLeft, ShoppingBag } from "lucide-react";
 import { useCart } from "@/lib/cart";
+import { useAuth } from "@/lib/auth";
 import { convertPrice } from "@/lib/data";
 
 export default function CartPage() {
   const { items, removeItem, currency } = useCart();
+  const { user } = useAuth();
 
   const total = items.reduce((sum, item) => sum + item.price, 0);
 
   if (items.length === 0) {
     return (
       <div className="container py-20 text-center">
+        <ShoppingBag className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
         <h1 className="font-display text-3xl font-bold mb-3">Your Cart is Empty</h1>
         <p className="text-muted-foreground mb-8">Discover beautiful Sierra Leonean art to add to your collection.</p>
         <Link to="/shop" className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-6 py-3 rounded-md font-medium text-sm">
@@ -53,12 +56,21 @@ export default function CartPage() {
           <span className="font-display font-bold text-lg">Total</span>
           <span className="font-display font-bold text-lg text-primary">{convertPrice(total, currency)}</span>
         </div>
-        <Link
-          to="/checkout"
-          className="w-full block text-center bg-primary text-primary-foreground py-3.5 rounded-md font-medium text-sm hover:opacity-90 transition-opacity"
-        >
-          Proceed to Checkout
-        </Link>
+        {user ? (
+          <Link
+            to="/checkout"
+            className="w-full block text-center bg-primary text-primary-foreground py-3.5 rounded-md font-medium text-sm hover:opacity-90 transition-opacity"
+          >
+            Proceed to Checkout
+          </Link>
+        ) : (
+          <Link
+            to="/login"
+            className="w-full block text-center bg-primary text-primary-foreground py-3.5 rounded-md font-medium text-sm hover:opacity-90 transition-opacity"
+          >
+            Login to Checkout
+          </Link>
+        )}
       </div>
     </div>
   );

@@ -37,9 +37,43 @@ export default function Community() {
   const [newPost, setNewPost] = useState("");
   const [posting, setPosting] = useState(false);
 
+  const fakePosts: PostData[] = [
+    { id: "fake-1", content: "Just finished my latest painting inspired by the Cotton Tree 🌳 Can't wait to exhibit it at the National Museum!", image_url: null, created_at: "March 28, 2026", author_id: "fake-a1", author_name: "Aminata Kamara", author_avatar: null, likes_count: 24, user_liked: false, comments: [
+      { id: "fc-1", content: "This is incredible! Your work keeps getting better 🔥", author_id: "fake-b1", author_name: "Ibrahim Koroma", created_at: "March 28, 2026", likes_count: 5, user_liked: false, replies: [
+        { id: "fc-1r", content: "Thank you bro! Means a lot coming from you", author_id: "fake-a1", author_name: "Aminata Kamara", created_at: "March 28, 2026", likes_count: 2, user_liked: false, replies: [] },
+      ]},
+      { id: "fc-2", content: "The colours are amazing! Would love to see this in person", author_id: "fake-b2", author_name: "Fatmata Bangura", created_at: "March 28, 2026", likes_count: 3, user_liked: false, replies: [] },
+      { id: "fc-3", content: "Sierra Leonean art is truly unmatched 🇸🇱", author_id: "fake-b3", author_name: "Mohamed Sesay", created_at: "March 29, 2026", likes_count: 8, user_liked: false, replies: [] },
+    ]},
+    { id: "fake-2", content: "Excited to announce my new sculpture series 'Guardians of Freetown' will be available on ArtVault next week! 🎨 Stay tuned for the drop.", image_url: null, created_at: "March 27, 2026", author_id: "fake-b1", author_name: "Ibrahim Koroma", author_avatar: null, likes_count: 31, user_liked: false, comments: [
+      { id: "fc-4", content: "Can't wait! Your sculptures are always masterpieces", author_id: "fake-b2", author_name: "Fatmata Bangura", created_at: "March 27, 2026", likes_count: 4, user_liked: false, replies: [] },
+      { id: "fc-5", content: "Will there be limited editions? I want to grab one early!", author_id: "fake-b4", author_name: "Abu Kamara", created_at: "March 27, 2026", likes_count: 2, user_liked: false, replies: [
+        { id: "fc-5r", content: "Yes! Only 10 pieces in the first batch 🙏", author_id: "fake-b1", author_name: "Ibrahim Koroma", created_at: "March 27, 2026", likes_count: 6, user_liked: false, replies: [] },
+      ]},
+    ]},
+    { id: "fake-3", content: "Just visited the 'Voices of the Land' exhibition preview. The energy was incredible! Sierra Leone's art scene is growing fast 🚀", image_url: null, created_at: "March 26, 2026", author_id: "fake-b3", author_name: "Mohamed Sesay", author_avatar: null, likes_count: 18, user_liked: false, comments: [
+      { id: "fc-6", content: "I was there too! Amazing vibes and beautiful art everywhere", author_id: "fake-a1", author_name: "Aminata Kamara", created_at: "March 26, 2026", likes_count: 3, user_liked: false, replies: [] },
+      { id: "fc-7", content: "Proud to be part of this community 🇸🇱❤️", author_id: "fake-b2", author_name: "Fatmata Bangura", created_at: "March 26, 2026", likes_count: 7, user_liked: false, replies: [] },
+    ]},
+    { id: "fake-4", content: "Working on a new country cloth collection blending traditional Mende patterns with contemporary fashion. Art meets wearable culture! 🧵", image_url: null, created_at: "March 25, 2026", author_id: "fake-b2", author_name: "Fatmata Bangura", author_avatar: null, likes_count: 22, user_liked: false, comments: [
+      { id: "fc-8", content: "This sounds amazing! Can't wait to see the final pieces", author_id: "fake-b4", author_name: "Abu Kamara", created_at: "March 25, 2026", likes_count: 1, user_liked: false, replies: [] },
+      { id: "fc-9", content: "Country cloth is so underrated. Love that you're keeping it alive!", author_id: "fake-b3", author_name: "Mohamed Sesay", created_at: "March 25, 2026", likes_count: 5, user_liked: false, replies: [] },
+      { id: "fc-10", content: "Would you consider doing a workshop on this? I'd love to learn!", author_id: "fake-a1", author_name: "Aminata Kamara", created_at: "March 26, 2026", likes_count: 4, user_liked: false, replies: [
+        { id: "fc-10r", content: "Great idea! Let me plan something for next month 💡", author_id: "fake-b2", author_name: "Fatmata Bangura", created_at: "March 26, 2026", likes_count: 3, user_liked: false, replies: [] },
+      ]},
+    ]},
+    { id: "fake-5", content: "My pottery workshop at the British Council was fully booked! Thank you to everyone who came. Sierra Leonean ceramics have a bright future 🏺", image_url: null, created_at: "March 24, 2026", author_id: "fake-b4", author_name: "Abu Kamara", author_avatar: null, likes_count: 15, user_liked: false, comments: [
+      { id: "fc-11", content: "I attended! It was so inspiring. You're a great teacher 👏", author_id: "fake-b3", author_name: "Mohamed Sesay", created_at: "March 24, 2026", likes_count: 3, user_liked: false, replies: [] },
+    ]},
+  ];
+
   const fetchPosts = async () => {
     const { data: postsData } = await supabase.from("posts").select("*").order("created_at", { ascending: false });
-    if (!postsData) { setLoading(false); return; }
+    if (!postsData || postsData.length === 0) {
+      setPosts(fakePosts);
+      setLoading(false);
+      return;
+    }
 
     const postIds = postsData.map(p => p.id);
     const [{ data: profiles }, { data: comments }, { data: likes }] = await Promise.all([
@@ -71,7 +105,7 @@ export default function Community() {
       };
     });
 
-    setPosts(enrichedPosts);
+    setPosts([...enrichedPosts, ...fakePosts]);
     setLoading(false);
   };
 

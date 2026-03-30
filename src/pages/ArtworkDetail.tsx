@@ -18,7 +18,6 @@ export default function ArtworkDetail() {
   const [shareOpen, setShareOpen] = useState(false);
   const [artwork, setArtwork] = useState<Artwork | null>(null);
   const [loading, setLoading] = useState(true);
-  const [purchasing, setPurchasing] = useState(false);
 
   useEffect(() => {
     const loadArtwork = async () => {
@@ -67,32 +66,12 @@ export default function ArtworkDetail() {
   const wishlisted = isWishlisted(artwork.id);
   const shareUrl = window.location.href;
 
-  const handleBuyNow = async () => {
+  const handleAddToCart = () => {
     if (!user) {
-      toast.error("Please log in to purchase");
+      toast.error("Please log in to add items to cart");
       return;
     }
     if (artwork.sold) return;
-
-    setPurchasing(true);
-
-    // If it's a DB artwork, mark as sold
-    if (artwork.id.startsWith("db-")) {
-      const dbId = artwork.id.replace("db-", "");
-      const { error } = await supabase.from("artworks").update({ sold: true }).eq("id", dbId);
-      if (error) {
-        toast.error("Purchase failed. Please try again.");
-        setPurchasing(false);
-        return;
-      }
-      setArtwork({ ...artwork, sold: true });
-    }
-
-    toast.success(`🎉 You've purchased "${artwork.title}"!`);
-    setPurchasing(false);
-  };
-
-  const handleAddToCart = () => {
     addItem(artwork);
     toast.success(`"${artwork.title}" added to cart`);
   };
@@ -138,21 +117,12 @@ export default function ArtworkDetail() {
                 Sold
               </div>
             ) : (
-              <div className="flex gap-3">
-                <button
-                  onClick={handleBuyNow}
-                  disabled={purchasing}
-                  className="flex-1 flex items-center justify-center gap-2 bg-primary text-primary-foreground px-6 py-3.5 rounded-md font-medium text-sm hover:opacity-90 transition-opacity disabled:opacity-50"
-                >
-                  {purchasing ? "Processing..." : "Buy Now"}
-                </button>
-                <button
-                  onClick={handleAddToCart}
-                  className="flex items-center justify-center gap-2 border border-border px-6 py-3.5 rounded-md font-medium text-sm hover:bg-secondary transition-colors"
-                >
-                  <ShoppingBag className="h-4 w-4" /> Add to Cart
-                </button>
-              </div>
+              <button
+                onClick={handleAddToCart}
+                className="w-full flex items-center justify-center gap-2 bg-primary text-primary-foreground px-6 py-3.5 rounded-md font-medium text-sm hover:opacity-90 transition-opacity"
+              >
+                <ShoppingBag className="h-4 w-4" /> Add to Cart
+              </button>
             )}
             <div className="flex gap-3">
               <button
