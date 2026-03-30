@@ -77,9 +77,8 @@ export default function Register() {
       return;
     }
 
-    // For artists, also create an artist application
+    // For artists, also create an artist application and save avatar
     if (userType === "artist") {
-      // Wait briefly for the auth user to be created
       const { data: { session } } = await supabase.auth.getSession();
       if (session?.user) {
         let profileImageUrl: string | null = null;
@@ -103,6 +102,11 @@ export default function Register() {
             const { data: urlData } = supabase.storage.from("artist-uploads").getPublicUrl(path);
             idDocumentUrl = urlData.publicUrl;
           }
+        }
+
+        // Save avatar to profile so it shows in navbar/dashboard
+        if (profileImageUrl) {
+          await supabase.from("profiles").update({ avatar_url: profileImageUrl }).eq("user_id", session.user.id);
         }
 
         await supabase.from("artist_applications").insert({
