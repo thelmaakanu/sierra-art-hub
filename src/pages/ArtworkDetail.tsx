@@ -18,7 +18,6 @@ export default function ArtworkDetail() {
   const [shareOpen, setShareOpen] = useState(false);
   const [artwork, setArtwork] = useState<Artwork | null>(null);
   const [loading, setLoading] = useState(true);
-  const [purchasing, setPurchasing] = useState(false);
 
   useEffect(() => {
     const loadArtwork = async () => {
