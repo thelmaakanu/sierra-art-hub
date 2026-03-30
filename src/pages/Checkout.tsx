@@ -2,13 +2,18 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ArrowLeft, CheckCircle2, Truck, Shield, CreditCard } from "lucide-react";
 import { useCart } from "@/lib/cart";
+import { useAuth } from "@/lib/auth";
 import { convertPrice } from "@/lib/data";
+import { supabase } from "@/integrations/supabase/client";
 import { motion } from "framer-motion";
+import { toast } from "sonner";
 
 export default function Checkout() {
   const { items, clearCart, currency } = useCart();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const [purchased, setPurchased] = useState(false);
+  const [processing, setProcessing] = useState(false);
   const total = items.reduce((sum, item) => sum + item.price, 0);
   const shipping = total > 3000 ? 0 : 500;
 
@@ -21,11 +26,9 @@ export default function Checkout() {
         <h1 className="font-display text-3xl font-bold mb-3">Purchase Successful!</h1>
         <p className="text-muted-foreground mb-2">Thank you for supporting Sierra Leonean artists.</p>
         <p className="text-sm text-muted-foreground mb-8">Your artwork is being prepared for shipment. You'll receive a confirmation email shortly.</p>
-        <div className="flex flex-col gap-3">
-          <Link to="/shop" className="bg-primary text-primary-foreground px-6 py-3 rounded-md font-medium text-sm hover:opacity-90 transition-opacity">
-            Continue Shopping
-          </Link>
-        </div>
+        <Link to="/shop" className="bg-primary text-primary-foreground px-6 py-3 rounded-md font-medium text-sm hover:opacity-90 transition-opacity">
+          Continue Shopping
+        </Link>
       </div>
     );
   }
@@ -39,10 +42,25 @@ export default function Checkout() {
     );
   }
 
-  const handlePurchase = (e: React.FormEvent) => {
+  const handlePurchase = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!user) { toast.error("Please log in to purchase"); return; }
+    setProcessing(true);
+
+    // Mark all DB artworks as sold
+    for (const item of items) {
+      if (item.id.startsWith("db-")) {
+        const dbId = item.id.replace("db-", "");
+        await supabase.from("artworks").update({ sold: true }).eq("id", dbId);
+      }
+    }
+
+    // Mark mock artworks as sold (update local data)
+    // Mock artworks won't persist but we clear the cart anyway
+
     clearCart();
     setPurchased(true);
+    setProcessing(false);
   };
 
   return (
@@ -56,7 +74,6 @@ export default function Checkout() {
       <form onSubmit={handlePurchase}>
         <div className="grid md:grid-cols-5 gap-8">
           <div className="md:col-span-3 space-y-6">
-            {/* Shipping */}
             <div className="bg-card rounded-lg border p-6">
               <h2 className="font-display font-semibold text-lg mb-4 flex items-center gap-2">
                 <Truck className="h-5 w-5 text-primary" /> Shipping Information
@@ -98,7 +115,6 @@ export default function Checkout() {
               </div>
             </div>
 
-            {/* Payment */}
             <div className="bg-card rounded-lg border p-6">
               <h2 className="font-display font-semibold text-lg mb-4 flex items-center gap-2">
                 <CreditCard className="h-5 w-5 text-primary" /> Payment
@@ -110,7 +126,6 @@ export default function Checkout() {
             </div>
           </div>
 
-          {/* Order Summary */}
           <div className="md:col-span-2">
             <div className="bg-card rounded-lg border p-6 sticky top-24">
               <h2 className="font-display font-semibold text-lg mb-4">Order Summary</h2>
@@ -141,8 +156,8 @@ export default function Checkout() {
                 </div>
               </div>
 
-              <button type="submit" className="w-full mt-4 bg-primary text-primary-foreground py-3.5 rounded-md font-medium text-sm hover:opacity-90 transition-opacity">
-                Complete Purchase
+              <button type="submit" disabled={processing} className="w-full mt-4 bg-primary text-primary-foreground py-3.5 rounded-md font-medium text-sm hover:opacity-90 transition-opacity disabled:opacity-50">
+                {processing ? "Processing..." : "Complete Purchase"}
               </button>
 
               <p className="text-xs text-muted-foreground text-center mt-3">
