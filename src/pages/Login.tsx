@@ -51,7 +51,7 @@ export default function Login() {
     if (error) {
       toast.error(error.message);
     } else {
-      toast.success("Welcome back!");
+      toast.success("Welcome back! 🎉");
       navigate("/dashboard");
     }
   };

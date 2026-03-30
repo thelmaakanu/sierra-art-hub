@@ -61,7 +61,10 @@ export default function Register() {
       user_type: userType,
     };
 
-    if (userType === "artist") {
+    if (userType === "buyer") {
+      if (phoneNumber) metadata.phone = phoneNumber;
+      if (shippingAddress) metadata.shipping_address = shippingAddress;
+    } else {
       metadata.phone = phone.replace(/\s/g, "");
       metadata.bio = bio;
     }
@@ -74,18 +77,48 @@ export default function Register() {
       return;
     }
 
-    // Update profile with phone number for all users
-    // This happens after the trigger creates the profile
-    // We'll update it after redirect
-
+    // For artists, also create an artist application
     if (userType === "artist") {
-      toast.success("Account created! Check your email to verify, then your artist application will be reviewed.");
-    } else {
-      toast.success("Account created! Check your email to verify your account.");
+      // Wait briefly for the auth user to be created
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        let profileImageUrl: string | null = null;
+        let idDocumentUrl: string | null = null;
+
+        if (profileImage) {
+          const ext = profileImage.name.split(".").pop();
+          const path = `${session.user.id}/profile.${ext}`;
+          const { error: upErr } = await supabase.storage.from("artist-uploads").upload(path, profileImage);
+          if (!upErr) {
+            const { data: urlData } = supabase.storage.from("artist-uploads").getPublicUrl(path);
+            profileImageUrl = urlData.publicUrl;
+          }
+        }
+
+        if (idDocument) {
+          const ext = idDocument.name.split(".").pop();
+          const path = `${session.user.id}/id-doc.${ext}`;
+          const { error: upErr } = await supabase.storage.from("artist-uploads").upload(path, idDocument);
+          if (!upErr) {
+            const { data: urlData } = supabase.storage.from("artist-uploads").getPublicUrl(path);
+            idDocumentUrl = urlData.publicUrl;
+          }
+        }
+
+        await supabase.from("artist_applications").insert({
+          user_id: session.user.id,
+          full_name: fullName,
+          phone: phone.replace(/\s/g, ""),
+          bio,
+          profile_image_url: profileImageUrl,
+          id_document_url: idDocumentUrl,
+        });
+      }
     }
 
+    toast.success("Account created! Welcome to ArtVault 🎉");
     setLoading(false);
-    navigate("/login");
+    navigate("/dashboard");
   };
 
   if (step === "type") {
