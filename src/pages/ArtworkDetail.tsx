@@ -118,21 +118,12 @@ export default function ArtworkDetail() {
                 Sold
               </div>
             ) : (
-              <div className="flex gap-3">
-                <button
-                  onClick={handleBuyNow}
-                  disabled={purchasing}
-                  className="flex-1 flex items-center justify-center gap-2 bg-primary text-primary-foreground px-6 py-3.5 rounded-md font-medium text-sm hover:opacity-90 transition-opacity disabled:opacity-50"
-                >
-                  {purchasing ? "Processing..." : "Buy Now"}
-                </button>
-                <button
-                  onClick={handleAddToCart}
-                  className="flex items-center justify-center gap-2 border border-border px-6 py-3.5 rounded-md font-medium text-sm hover:bg-secondary transition-colors"
-                >
-                  <ShoppingBag className="h-4 w-4" /> Add to Cart
-                </button>
-              </div>
+              <button
+                onClick={handleAddToCart}
+                className="w-full flex items-center justify-center gap-2 bg-primary text-primary-foreground px-6 py-3.5 rounded-md font-medium text-sm hover:opacity-90 transition-opacity"
+              >
+                <ShoppingBag className="h-4 w-4" /> Add to Cart
+              </button>
             )}
             <div className="flex gap-3">
               <button
