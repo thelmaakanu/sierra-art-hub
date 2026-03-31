@@ -259,7 +259,7 @@ export default function Register() {
                   <input type="tel" value={phone} onChange={e => validatePhone(e.target.value)} placeholder="+232 XXXXXXXX" required className="w-full px-4 py-3 rounded-xl text-sm bg-secondary border-none focus:outline-none focus:ring-2 focus:ring-ring pr-10" />
                   {phoneValid !== null && (
                     <span className="absolute right-3 top-1/2 -translate-y-1/2">
-                      {phoneValid ? <CheckCircle2 className="h-4 w-4 text-green-600" /> : <AlertCircle className="h-4 w-4 text-destructive" />}
+                      {phoneValid ? <CheckCircle2 className="h-4 w-4 text-foreground" /> : <AlertCircle className="h-4 w-4 text-destructive" />}
                     </span>
                   )}
                 </div>
