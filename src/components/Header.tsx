@@ -23,19 +23,19 @@ export default function Header() {
   const location = useLocation();
 
   return (
-    <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b">
-      <div className="container flex items-center justify-between h-14 md:h-16">
+    <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b">
+      <div className="container flex items-center justify-between h-16 md:h-[72px]">
         <Link to="/" className="flex items-center gap-2">
-          <span className="font-display text-lg md:text-xl font-bold tracking-tight">ArtVault</span>
+          <span className="font-display text-xl md:text-2xl font-bold tracking-tight">ArtVault</span>
         </Link>
 
-        <nav className="hidden lg:flex items-center gap-6">
+        <nav className="hidden lg:flex items-center gap-8">
           {navLinks.map(l => (
             <Link
               key={l.to}
               to={l.to}
-              className={`text-sm font-medium tracking-wide transition-colors hover:text-primary ${
-                location.pathname === l.to ? "text-primary" : "text-muted-foreground"
+              className={`text-[13px] font-medium tracking-wide transition-opacity hover:opacity-100 ${
+                location.pathname === l.to ? "opacity-100" : "opacity-50"
               }`}
             >
               {l.label}
@@ -44,14 +44,14 @@ export default function Header() {
         </nav>
 
         <div className="flex items-center gap-1 md:gap-2">
-          <Link to="/search" className="p-2 hover:text-primary transition-colors">
+          <Link to="/search" className="p-2 opacity-60 hover:opacity-100 transition-opacity">
             <Search className="h-5 w-5" />
           </Link>
 
-          <Link to="/wishlist" className="relative p-2 hover:text-primary transition-colors">
+          <Link to="/wishlist" className="relative p-2 opacity-60 hover:opacity-100 transition-opacity">
             <Heart className="h-5 w-5" />
             {wishlist.length > 0 && (
-              <span className="absolute -top-0.5 -right-0.5 bg-primary text-primary-foreground text-[10px] font-bold rounded-full h-4 w-4 flex items-center justify-center">
+              <span className="absolute -top-0.5 -right-0.5 bg-foreground text-background text-[10px] font-bold rounded-full h-4 w-4 flex items-center justify-center">
                 {wishlist.length}
               </span>
             )}
@@ -60,17 +60,17 @@ export default function Header() {
           <select
             value={currency}
             onChange={e => setCurrency(e.target.value)}
-            className="hidden md:block text-xs bg-secondary rounded-md px-2 py-1.5 border-none font-medium text-secondary-foreground"
+            className="hidden md:block text-xs bg-secondary rounded-lg px-2 py-1.5 border-none font-medium"
           >
             {currencies.map(c => (
               <option key={c.code} value={c.code}>{c.code}</option>
             ))}
           </select>
 
-          <Link to="/cart" className="relative p-2 hover:text-primary transition-colors">
+          <Link to="/cart" className="relative p-2 opacity-60 hover:opacity-100 transition-opacity">
             <ShoppingBag className="h-5 w-5" />
             {items.length > 0 && (
-              <span className="absolute -top-0.5 -right-0.5 bg-primary text-primary-foreground text-[10px] font-bold rounded-full h-4 w-4 flex items-center justify-center">
+              <span className="absolute -top-0.5 -right-0.5 bg-foreground text-background text-[10px] font-bold rounded-full h-4 w-4 flex items-center justify-center">
                 {items.length}
               </span>
             )}
@@ -78,14 +78,14 @@ export default function Header() {
 
           {user ? (
             <>
-              <Link to="/dashboard" className="hidden md:flex p-2 hover:text-primary transition-colors" title="Dashboard">
+              <Link to="/dashboard" className="hidden md:flex p-2 opacity-60 hover:opacity-100 transition-opacity" title="Dashboard">
                 <LayoutDashboard className="h-5 w-5" />
               </Link>
-              <button onClick={signOut} className="hidden md:flex p-2 hover:text-destructive transition-colors" title="Sign out">
+              <button onClick={signOut} className="hidden md:flex p-2 opacity-60 hover:opacity-100 transition-opacity" title="Sign out">
                 <LogOut className="h-5 w-5" />
               </button>
               <Link to="/dashboard" className="hidden md:flex items-center pl-1">
-                <div className="h-8 w-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-bold overflow-hidden">
+                <div className="h-8 w-8 rounded-full bg-foreground text-background flex items-center justify-center text-xs font-bold overflow-hidden">
                   {profile?.avatar_url ? (
                     <img src={profile.avatar_url} alt="" className="h-full w-full object-cover" />
                   ) : (
@@ -95,7 +95,7 @@ export default function Header() {
               </Link>
             </>
           ) : (
-            <Link to="/login" className="hidden md:flex p-2 hover:text-primary transition-colors" title="Login">
+            <Link to="/login" className="hidden md:flex p-2 opacity-60 hover:opacity-100 transition-opacity" title="Login">
               <User className="h-5 w-5" />
             </Link>
           )}
@@ -107,40 +107,40 @@ export default function Header() {
       </div>
 
       {mobileOpen && (
-        <nav className="lg:hidden border-t bg-background px-6 py-4 space-y-3">
+        <nav className="lg:hidden border-t bg-background px-6 py-5 space-y-3">
           {navLinks.map(l => (
             <Link
               key={l.to}
               to={l.to}
               onClick={() => setMobileOpen(false)}
-              className={`block text-base font-medium py-1 ${
-                location.pathname === l.to ? "text-primary" : "text-muted-foreground"
+              className={`block text-base font-medium py-1.5 ${
+                location.pathname === l.to ? "opacity-100" : "opacity-50"
               }`}
             >
               {l.label}
             </Link>
           ))}
-          <Link to="/contact" onClick={() => setMobileOpen(false)} className="block text-base font-medium py-1 text-muted-foreground">Contact</Link>
-          <div className="pt-2 border-t">
+          <Link to="/contact" onClick={() => setMobileOpen(false)} className="block text-base font-medium py-1.5 opacity-50">Contact</Link>
+          <div className="pt-3 border-t">
             <select
               value={currency}
               onChange={e => setCurrency(e.target.value)}
-              className="text-sm bg-secondary rounded-md px-3 py-2 border-none font-medium text-secondary-foreground w-full mb-3"
+              className="text-sm bg-secondary rounded-lg px-3 py-2.5 border-none font-medium w-full mb-3"
             >
               {currencies.map(c => <option key={c.code} value={c.code}>{c.code} ({c.symbol})</option>)}
             </select>
           </div>
           {user ? (
             <>
-              <Link to="/dashboard" onClick={() => setMobileOpen(false)} className="block text-base font-medium text-muted-foreground py-1">
+              <Link to="/dashboard" onClick={() => setMobileOpen(false)} className="block text-base font-medium py-1.5 opacity-70">
                 My Profile
               </Link>
-              <button onClick={() => { signOut(); setMobileOpen(false); }} className="block text-base font-medium text-destructive py-1">
+              <button onClick={() => { signOut(); setMobileOpen(false); }} className="block text-base font-medium py-1.5 opacity-50">
                 Sign Out
               </button>
             </>
           ) : (
-            <Link to="/login" onClick={() => setMobileOpen(false)} className="block text-base font-medium text-muted-foreground py-1">
+            <Link to="/login" onClick={() => setMobileOpen(false)} className="block text-base font-medium py-1.5 opacity-70">
               Login
             </Link>
           )}

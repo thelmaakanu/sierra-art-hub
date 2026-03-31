@@ -20,7 +20,6 @@ export default function Shop() {
       if (data) {
         const profiles = await supabase.from("profiles").select("user_id, full_name");
         const profileMap = new Map((profiles.data || []).map(p => [p.user_id, p.full_name]));
-        
         const mapped: Artwork[] = data.map(a => ({
           id: `db-${a.id}`,
           title: a.title,
@@ -39,7 +38,6 @@ export default function Shop() {
   }, []);
 
   const allArtworks = [...mockArtworks, ...dbArtworks];
-  
   let filtered = selectedCategory === "All"
     ? allArtworks
     : allArtworks.filter(a => a.category === selectedCategory);
@@ -48,22 +46,22 @@ export default function Shop() {
   else if (sort === "price-high") filtered = [...filtered].sort((a, b) => b.price - a.price);
 
   return (
-    <div className="container py-12">
-      <div className="mb-10">
-        <h1 className="font-display text-3xl md:text-4xl font-bold mb-2">Shop</h1>
-        <p className="text-muted-foreground">Browse authentic Sierra Leonean artworks</p>
+    <div className="container py-16">
+      <div className="mb-12">
+        <h1 className="font-display text-4xl md:text-5xl font-bold tracking-tight mb-3">Shop</h1>
+        <p className="text-muted-foreground text-lg">Browse authentic Sierra Leonean artworks</p>
       </div>
 
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-10">
         <div className="flex flex-wrap gap-2">
           {categories.map(cat => (
             <button
               key={cat}
               onClick={() => setSelectedCategory(cat)}
-              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+              className={`px-5 py-2.5 rounded-full text-sm font-medium transition-all ${
                 selectedCategory === cat
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-secondary text-secondary-foreground hover:bg-muted"
+                  ? "bg-foreground text-background"
+                  : "bg-secondary text-foreground hover:bg-foreground/10"
               }`}
             >
               {cat}
@@ -74,7 +72,7 @@ export default function Shop() {
         <select
           value={sort}
           onChange={e => setSort(e.target.value as SortOption)}
-          className="text-sm bg-secondary text-secondary-foreground rounded-md px-3 py-2 border-none"
+          className="text-sm bg-secondary rounded-lg px-4 py-2.5 border-none"
         >
           <option value="newest">Newest</option>
           <option value="price-low">Price: Low to High</option>
@@ -82,14 +80,14 @@ export default function Shop() {
         </select>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 md:gap-7">
         {filtered.map((a, i) => (
           <ArtworkCard key={a.id} artwork={a} index={i} />
         ))}
       </div>
 
       {filtered.length === 0 && (
-        <p className="text-center text-muted-foreground py-20">No artworks found in this category.</p>
+        <p className="text-center text-muted-foreground py-24">No artworks found in this category.</p>
       )}
     </div>
   );
