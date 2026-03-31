@@ -30,7 +30,6 @@ export default function Login() {
         setLoading(false);
         return;
       }
-      // Look up email by phone number
       const { data: profile } = await supabase
         .from("profiles")
         .select("email")
@@ -57,19 +56,18 @@ export default function Login() {
   };
 
   return (
-    <div className="container py-16 max-w-md mx-auto">
-      <div className="text-center mb-8">
-        <h1 className="font-display text-3xl font-bold mb-2">Welcome Back</h1>
-        <p className="text-muted-foreground text-sm">Sign in to your ArtVault account</p>
+    <div className="container py-20 max-w-md mx-auto">
+      <div className="text-center mb-10">
+        <h1 className="font-display text-4xl font-bold tracking-tight mb-3">Welcome Back</h1>
+        <p className="text-muted-foreground">Sign in to your ArtVault account</p>
       </div>
 
-      {/* Login Method Toggle */}
-      <div className="flex rounded-lg bg-secondary p-1 mb-6">
+      <div className="flex rounded-full bg-secondary p-1 mb-8">
         <button
           type="button"
           onClick={() => setMethod("email")}
-          className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-md text-sm font-medium transition-colors ${
-            method === "email" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
+          className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-full text-sm font-medium transition-all ${
+            method === "email" ? "bg-foreground text-background" : "text-muted-foreground hover:text-foreground"
           }`}
         >
           <Mail className="h-4 w-4" /> Email
@@ -77,46 +75,46 @@ export default function Login() {
         <button
           type="button"
           onClick={() => setMethod("phone")}
-          className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-md text-sm font-medium transition-colors ${
-            method === "phone" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
+          className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-full text-sm font-medium transition-all ${
+            method === "phone" ? "bg-foreground text-background" : "text-muted-foreground hover:text-foreground"
           }`}
         >
           <Phone className="h-4 w-4" /> Phone
         </button>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-5">
         {method === "email" ? (
           <div>
-            <label className="block text-sm font-medium mb-1.5">Email</label>
-            <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="your@email.com" required className="w-full px-3 py-2.5 rounded-md text-sm bg-secondary border-none focus:outline-none focus:ring-2 focus:ring-ring" />
+            <label className="block text-sm font-medium mb-2">Email</label>
+            <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="your@email.com" required className="w-full px-4 py-3 rounded-xl text-sm bg-secondary border-none focus:outline-none focus:ring-2 focus:ring-ring" />
           </div>
         ) : (
           <div>
-            <label className="block text-sm font-medium mb-1.5">Phone Number</label>
-            <input type="tel" value={phone} onChange={e => setPhone(e.target.value)} placeholder="+232 XXXXXXXX" required className="w-full px-3 py-2.5 rounded-md text-sm bg-secondary border-none focus:outline-none focus:ring-2 focus:ring-ring" />
-            <p className="text-xs text-muted-foreground mt-1">Sierra Leone format: +232 followed by 8 digits</p>
+            <label className="block text-sm font-medium mb-2">Phone Number</label>
+            <input type="tel" value={phone} onChange={e => setPhone(e.target.value)} placeholder="+232 XXXXXXXX" required className="w-full px-4 py-3 rounded-xl text-sm bg-secondary border-none focus:outline-none focus:ring-2 focus:ring-ring" />
+            <p className="text-xs text-muted-foreground mt-1.5">Sierra Leone format: +232 followed by 8 digits</p>
           </div>
         )}
 
         <div>
-          <label className="block text-sm font-medium mb-1.5">Password</label>
+          <label className="block text-sm font-medium mb-2">Password</label>
           <div className="relative">
-            <input type={showPassword ? "text" : "password"} value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••" required className="w-full px-3 py-2.5 rounded-md text-sm bg-secondary border-none focus:outline-none focus:ring-2 focus:ring-ring pr-10" />
+            <input type={showPassword ? "text" : "password"} value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••" required className="w-full px-4 py-3 rounded-xl text-sm bg-secondary border-none focus:outline-none focus:ring-2 focus:ring-ring pr-10" />
             <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">
               {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
             </button>
           </div>
         </div>
 
-        <button type="submit" disabled={loading} className="w-full bg-primary text-primary-foreground py-3 rounded-md font-medium text-sm hover:opacity-90 transition-opacity disabled:opacity-50">
+        <button type="submit" disabled={loading} className="w-full bg-foreground text-background py-3.5 rounded-full font-medium text-sm hover:opacity-90 transition-opacity disabled:opacity-50">
           {loading ? "Signing in..." : "Sign In"}
         </button>
       </form>
 
-      <p className="text-center text-sm text-muted-foreground mt-6">
+      <p className="text-center text-sm text-muted-foreground mt-8">
         Don't have an account?{" "}
-        <Link to="/register" className="text-primary font-medium hover:underline">Create one</Link>
+        <Link to="/register" className="text-foreground font-medium hover:opacity-70 transition-opacity">Create one</Link>
       </p>
     </div>
   );

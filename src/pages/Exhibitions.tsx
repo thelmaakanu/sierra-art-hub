@@ -8,7 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Link } from "react-router-dom";
 
-const TICKET_PRICE = 500; // NLE per ticket
+const TICKET_PRICE = 500;
 
 export default function ExhibitionsPage() {
   const upcoming = exhibitions.filter(e => e.upcoming);
@@ -19,15 +19,15 @@ export default function ExhibitionsPage() {
   const [hostModal, setHostModal] = useState(false);
 
   return (
-    <div className="container py-12">
-      <div className="mb-10">
-        <h1 className="font-display text-3xl md:text-4xl font-bold mb-2">Exhibitions</h1>
-        <p className="text-muted-foreground">Discover art events and gallery showings across Sierra Leone</p>
+    <div className="container py-16">
+      <div className="mb-12">
+        <h1 className="font-display text-4xl md:text-5xl font-bold tracking-tight mb-3">Exhibitions</h1>
+        <p className="text-muted-foreground text-lg">Discover art events and gallery showings across Sierra Leone</p>
       </div>
 
       {upcoming.length > 0 && (
-        <section className="mb-16">
-          <h2 className="font-display text-2xl font-bold mb-6">Upcoming</h2>
+        <section className="mb-20">
+          <h2 className="font-display text-2xl font-bold mb-8 tracking-tight">Upcoming</h2>
           <div className="grid md:grid-cols-2 gap-8">
             {upcoming.map((ex, i) => (
               <ExhibitionCard key={ex.id} ex={ex} i={i} user={user} profile={profile}
@@ -40,8 +40,8 @@ export default function ExhibitionsPage() {
       )}
 
       {past.length > 0 && (
-        <section className="mb-16">
-          <h2 className="font-display text-2xl font-bold mb-6">Past</h2>
+        <section className="mb-20">
+          <h2 className="font-display text-2xl font-bold mb-8 tracking-tight">Past</h2>
           <div className="grid md:grid-cols-2 gap-8">
             {past.map((ex, i) => (
               <ExhibitionCard key={ex.id} ex={ex} i={i} user={user} profile={profile} />
@@ -50,16 +50,15 @@ export default function ExhibitionsPage() {
         </section>
       )}
 
-      {/* Host Exhibition Request */}
-      <div className="text-center py-12 border-t">
-        <h3 className="font-display text-xl font-bold mb-2">Want to host an exhibition?</h3>
-        <p className="text-sm text-muted-foreground mb-4">Share your idea and we'll help make it happen.</p>
+      <div className="text-center py-16 border-t">
+        <h3 className="font-display text-2xl font-bold mb-3 tracking-tight">Want to host an exhibition?</h3>
+        <p className="text-muted-foreground mb-6">Share your idea and we'll help make it happen.</p>
         {user ? (
-          <button onClick={() => setHostModal(true)} className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-6 py-3 rounded-md font-medium text-sm hover:opacity-90 transition-opacity">
-            <PlusCircle className="h-4 w-4" /> Request to Host an Exhibition
+          <button onClick={() => setHostModal(true)} className="inline-flex items-center gap-2 bg-foreground text-background px-7 py-3.5 rounded-full font-medium text-sm hover:opacity-90 transition-opacity">
+            <PlusCircle className="h-4 w-4" /> Request to Host
           </button>
         ) : (
-          <Link to="/login" className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-6 py-3 rounded-md font-medium text-sm hover:opacity-90 transition-opacity">
+          <Link to="/login" className="inline-flex items-center gap-2 bg-foreground text-background px-7 py-3.5 rounded-full font-medium text-sm hover:opacity-90 transition-opacity">
             Login to Request
           </Link>
         )}
@@ -84,36 +83,36 @@ function ExhibitionCard({ ex, i, user, profile, onBuyTicket, onJoinRequest }: {
       whileInView={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: i * 0.1 }}
       viewport={{ once: true }}
-      className="group rounded-xl overflow-hidden bg-card border"
+      className="group rounded-2xl overflow-hidden border hover:shadow-xl transition-shadow duration-500"
     >
       <div className="aspect-[16/9] overflow-hidden">
         <img src={ex.image} alt={ex.title} loading="lazy" className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-700" />
       </div>
-      <div className="p-6">
+      <div className="p-7">
         <h3 className="font-display text-xl font-bold mb-3">{ex.title}</h3>
         <div className="flex items-center gap-4 text-xs text-muted-foreground mb-3">
           <span className="flex items-center gap-1"><CalendarDays className="h-3.5 w-3.5" /> {ex.date}</span>
           <span className="flex items-center gap-1"><MapPin className="h-3.5 w-3.5" /> {ex.location}</span>
         </div>
-        <p className="text-sm text-muted-foreground mb-4">{ex.description}</p>
-        <div className="flex flex-wrap gap-2 mb-4">
+        <p className="text-sm text-muted-foreground mb-5">{ex.description}</p>
+        <div className="flex flex-wrap gap-2 mb-5">
           {ex.featuredArtists.map(a => (
-            <span key={a} className="text-xs bg-secondary text-secondary-foreground px-3 py-1 rounded-full">{a}</span>
+            <span key={a} className="text-xs bg-secondary px-3 py-1 rounded-full">{a}</span>
           ))}
         </div>
 
         {ex.upcoming && (
-          <div className="flex flex-wrap gap-2 pt-3 border-t">
+          <div className="flex flex-wrap gap-3 pt-5 border-t">
             <button
               onClick={onBuyTicket}
-              className="flex items-center gap-1.5 bg-primary text-primary-foreground px-4 py-2 rounded-md text-xs font-medium hover:opacity-90 transition-opacity"
+              className="flex items-center gap-2 bg-foreground text-background px-5 py-2.5 rounded-full text-xs font-medium hover:opacity-90 transition-opacity"
             >
               <Ticket className="h-3.5 w-3.5" /> Buy Ticket
             </button>
             {user && profile?.user_type === "artist" && (
               <button
                 onClick={onJoinRequest}
-                className="flex items-center gap-1.5 bg-secondary text-secondary-foreground px-4 py-2 rounded-md text-xs font-medium hover:bg-muted transition-colors"
+                className="flex items-center gap-2 bg-secondary px-5 py-2.5 rounded-full text-xs font-medium hover:bg-foreground/10 transition-colors"
               >
                 <UserPlus className="h-3.5 w-3.5" /> Request to Join
               </button>
@@ -129,12 +128,12 @@ function ModalOverlay({ children, onClose }: { children: React.ReactNode; onClos
   return (
     <motion.div
       initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 bg-foreground/50 flex items-center justify-center p-4"
+      className="fixed inset-0 z-50 bg-foreground/40 backdrop-blur-sm flex items-center justify-center p-4"
       onClick={onClose}
     >
       <motion.div
         initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }}
-        className="bg-background rounded-xl border p-6 w-full max-w-md max-h-[90vh] overflow-y-auto"
+        className="bg-background rounded-2xl border p-7 w-full max-w-md max-h-[90vh] overflow-y-auto"
         onClick={e => e.stopPropagation()}
       >
         {children}
@@ -169,32 +168,32 @@ function TicketModal({ exhibitionId, onClose }: { exhibitionId: string; onClose:
 
   return (
     <ModalOverlay onClose={onClose}>
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between mb-5">
         <h3 className="font-display text-lg font-bold">Buy Ticket</h3>
-        <button onClick={onClose}><X className="h-5 w-5 text-muted-foreground" /></button>
+        <button onClick={onClose} className="p-1 rounded-full hover:bg-secondary transition-colors"><X className="h-5 w-5 text-muted-foreground" /></button>
       </div>
       <div className="space-y-3 mb-6">
         <p className="font-semibold">{ex.title}</p>
-        <p className="text-sm text-muted-foreground"><CalendarDays className="inline h-3.5 w-3.5 mr-1" />{ex.date}</p>
-        <p className="text-sm text-muted-foreground"><MapPin className="inline h-3.5 w-3.5 mr-1" />{ex.location}</p>
-        <p className="text-sm">Price: <span className="font-semibold text-primary">{convertPrice(TICKET_PRICE, currency)}</span> / ticket</p>
+        <p className="text-sm text-muted-foreground flex items-center gap-1.5"><CalendarDays className="h-3.5 w-3.5" />{ex.date}</p>
+        <p className="text-sm text-muted-foreground flex items-center gap-1.5"><MapPin className="h-3.5 w-3.5" />{ex.location}</p>
+        <p className="text-sm">Price: <span className="font-semibold">{convertPrice(TICKET_PRICE, currency)}</span> / ticket</p>
       </div>
-      <div className="mb-4">
-        <label className="block text-sm font-medium mb-1.5">Quantity</label>
-        <select value={qty} onChange={e => setQty(Number(e.target.value))} className="w-full px-3 py-2.5 rounded-md text-sm bg-secondary border-none">
+      <div className="mb-5">
+        <label className="block text-sm font-medium mb-2">Quantity</label>
+        <select value={qty} onChange={e => setQty(Number(e.target.value))} className="w-full px-4 py-3 rounded-xl text-sm bg-secondary border-none">
           {[1,2,3,4,5].map(n => <option key={n} value={n}>{n}</option>)}
         </select>
       </div>
-      <div className="flex justify-between font-semibold mb-4 p-3 bg-secondary rounded-md">
+      <div className="flex justify-between font-semibold mb-5 p-4 bg-secondary rounded-xl">
         <span>Total</span>
-        <span className="text-primary">{convertPrice(TICKET_PRICE * qty, currency)}</span>
+        <span>{convertPrice(TICKET_PRICE * qty, currency)}</span>
       </div>
       {user ? (
-        <button onClick={handlePurchase} disabled={loading} className="w-full bg-primary text-primary-foreground py-3 rounded-md font-medium text-sm hover:opacity-90 transition-opacity disabled:opacity-50">
+        <button onClick={handlePurchase} disabled={loading} className="w-full bg-foreground text-background py-3.5 rounded-full font-medium text-sm hover:opacity-90 transition-opacity disabled:opacity-50">
           {loading ? "Processing..." : "Confirm Purchase"}
         </button>
       ) : (
-        <Link to="/login" className="block w-full text-center bg-primary text-primary-foreground py-3 rounded-md font-medium text-sm" onClick={onClose}>
+        <Link to="/login" className="block w-full text-center bg-foreground text-background py-3.5 rounded-full font-medium text-sm" onClick={onClose}>
           Login to Purchase
         </Link>
       )}
@@ -227,24 +226,24 @@ function JoinRequestModal({ exhibitionId, onClose }: { exhibitionId: string; onC
 
   return (
     <ModalOverlay onClose={onClose}>
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between mb-5">
         <h3 className="font-display text-lg font-bold">Request to Join Exhibition</h3>
-        <button onClick={onClose}><X className="h-5 w-5 text-muted-foreground" /></button>
+        <button onClick={onClose} className="p-1 rounded-full hover:bg-secondary transition-colors"><X className="h-5 w-5 text-muted-foreground" /></button>
       </div>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block text-sm font-medium mb-1.5">Artist Name</label>
-          <input type="text" value={profile?.full_name || ""} readOnly className="w-full px-3 py-2.5 rounded-md text-sm bg-secondary border-none" />
+          <label className="block text-sm font-medium mb-2">Artist Name</label>
+          <input type="text" value={profile?.full_name || ""} readOnly className="w-full px-4 py-3 rounded-xl text-sm bg-secondary border-none" />
         </div>
         <div>
-          <label className="block text-sm font-medium mb-1.5">Portfolio Link</label>
-          <input type="url" value={portfolioLink} onChange={e => setPortfolioLink(e.target.value)} placeholder="https://..." className="w-full px-3 py-2.5 rounded-md text-sm bg-secondary border-none focus:outline-none focus:ring-2 focus:ring-ring" />
+          <label className="block text-sm font-medium mb-2">Portfolio Link</label>
+          <input type="url" value={portfolioLink} onChange={e => setPortfolioLink(e.target.value)} placeholder="https://..." className="w-full px-4 py-3 rounded-xl text-sm bg-secondary border-none focus:outline-none focus:ring-2 focus:ring-ring" />
         </div>
         <div>
-          <label className="block text-sm font-medium mb-1.5">Message to Organizer</label>
-          <textarea value={message} onChange={e => setMessage(e.target.value)} rows={3} placeholder="Why you'd like to join..." className="w-full px-3 py-2.5 rounded-md text-sm bg-secondary border-none focus:outline-none focus:ring-2 focus:ring-ring resize-none" required />
+          <label className="block text-sm font-medium mb-2">Message to Organizer</label>
+          <textarea value={message} onChange={e => setMessage(e.target.value)} rows={3} placeholder="Why you'd like to join..." className="w-full px-4 py-3 rounded-xl text-sm bg-secondary border-none focus:outline-none focus:ring-2 focus:ring-ring resize-none" required />
         </div>
-        <button type="submit" disabled={loading} className="w-full bg-primary text-primary-foreground py-3 rounded-md font-medium text-sm hover:opacity-90 transition-opacity disabled:opacity-50">
+        <button type="submit" disabled={loading} className="w-full bg-foreground text-background py-3.5 rounded-full font-medium text-sm hover:opacity-90 transition-opacity disabled:opacity-50">
           {loading ? "Submitting..." : "Submit Request"}
         </button>
       </form>
@@ -276,28 +275,28 @@ function HostExhibitionModal({ onClose }: { onClose: () => void }) {
 
   return (
     <ModalOverlay onClose={onClose}>
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between mb-5">
         <h3 className="font-display text-lg font-bold">Request to Host an Exhibition</h3>
-        <button onClick={onClose}><X className="h-5 w-5 text-muted-foreground" /></button>
+        <button onClick={onClose} className="p-1 rounded-full hover:bg-secondary transition-colors"><X className="h-5 w-5 text-muted-foreground" /></button>
       </div>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block text-sm font-medium mb-1.5">Your Name</label>
-          <input type="text" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} required className="w-full px-3 py-2.5 rounded-md text-sm bg-secondary border-none focus:outline-none focus:ring-2 focus:ring-ring" />
+          <label className="block text-sm font-medium mb-2">Your Name</label>
+          <input type="text" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} required className="w-full px-4 py-3 rounded-xl text-sm bg-secondary border-none focus:outline-none focus:ring-2 focus:ring-ring" />
         </div>
         <div>
-          <label className="block text-sm font-medium mb-1.5">Email</label>
-          <input type="email" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} required className="w-full px-3 py-2.5 rounded-md text-sm bg-secondary border-none focus:outline-none focus:ring-2 focus:ring-ring" />
+          <label className="block text-sm font-medium mb-2">Email</label>
+          <input type="email" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} required className="w-full px-4 py-3 rounded-xl text-sm bg-secondary border-none focus:outline-none focus:ring-2 focus:ring-ring" />
         </div>
         <div>
-          <label className="block text-sm font-medium mb-1.5">Exhibition Idea</label>
-          <textarea value={form.idea} onChange={e => setForm(f => ({ ...f, idea: e.target.value }))} rows={3} required className="w-full px-3 py-2.5 rounded-md text-sm bg-secondary border-none focus:outline-none focus:ring-2 focus:ring-ring resize-none" />
+          <label className="block text-sm font-medium mb-2">Exhibition Idea</label>
+          <textarea value={form.idea} onChange={e => setForm(f => ({ ...f, idea: e.target.value }))} rows={3} required className="w-full px-4 py-3 rounded-xl text-sm bg-secondary border-none focus:outline-none focus:ring-2 focus:ring-ring resize-none" />
         </div>
         <div>
-          <label className="block text-sm font-medium mb-1.5">Proposed Location</label>
-          <input type="text" value={form.location} onChange={e => setForm(f => ({ ...f, location: e.target.value }))} required className="w-full px-3 py-2.5 rounded-md text-sm bg-secondary border-none focus:outline-none focus:ring-2 focus:ring-ring" />
+          <label className="block text-sm font-medium mb-2">Proposed Location</label>
+          <input type="text" value={form.location} onChange={e => setForm(f => ({ ...f, location: e.target.value }))} required className="w-full px-4 py-3 rounded-xl text-sm bg-secondary border-none focus:outline-none focus:ring-2 focus:ring-ring" />
         </div>
-        <button type="submit" disabled={loading} className="w-full bg-primary text-primary-foreground py-3 rounded-md font-medium text-sm hover:opacity-90 transition-opacity disabled:opacity-50">
+        <button type="submit" disabled={loading} className="w-full bg-foreground text-background py-3.5 rounded-full font-medium text-sm hover:opacity-90 transition-opacity disabled:opacity-50">
           {loading ? "Submitting..." : "Submit Request"}
         </button>
       </form>
