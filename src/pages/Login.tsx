@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Eye, EyeOff, Mail, Phone } from "lucide-react";
+import { Eye, EyeOff, Mail, Phone, ArrowRight } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { motion } from "framer-motion";
 
 type LoginMethod = "email" | "phone";
 
@@ -56,66 +57,80 @@ export default function Login() {
   };
 
   return (
-    <div className="container py-20 max-w-md mx-auto">
-      <div className="text-center mb-10">
-        <h1 className="font-display text-4xl font-bold tracking-tight mb-3">Welcome Back</h1>
-        <p className="text-muted-foreground">Sign in to your ArtVault account</p>
-      </div>
-
-      <div className="flex rounded-full bg-secondary p-1 mb-8">
-        <button
-          type="button"
-          onClick={() => setMethod("email")}
-          className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-full text-sm font-medium transition-all ${
-            method === "email" ? "bg-foreground text-background" : "text-muted-foreground hover:text-foreground"
-          }`}
-        >
-          <Mail className="h-4 w-4" /> Email
-        </button>
-        <button
-          type="button"
-          onClick={() => setMethod("phone")}
-          className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-full text-sm font-medium transition-all ${
-            method === "phone" ? "bg-foreground text-background" : "text-muted-foreground hover:text-foreground"
-          }`}
-        >
-          <Phone className="h-4 w-4" /> Phone
-        </button>
-      </div>
-
-      <form onSubmit={handleSubmit} className="space-y-5">
-        {method === "email" ? (
-          <div>
-            <label className="block text-sm font-medium mb-2">Email</label>
-            <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="your@email.com" required className="w-full px-4 py-3 rounded-xl text-sm bg-secondary border-none focus:outline-none focus:ring-2 focus:ring-ring" />
+    <div className="min-h-[calc(100vh-72px)] flex items-center justify-center px-4 py-16">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] }}
+        className="w-full max-w-[420px]"
+      >
+        <div className="text-center mb-10">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-3xl bg-secondary mb-6">
+            <Mail className="h-7 w-7 text-foreground" />
           </div>
-        ) : (
-          <div>
-            <label className="block text-sm font-medium mb-2">Phone Number</label>
-            <input type="tel" value={phone} onChange={e => setPhone(e.target.value)} placeholder="+232 XXXXXXXX" required className="w-full px-4 py-3 rounded-xl text-sm bg-secondary border-none focus:outline-none focus:ring-2 focus:ring-ring" />
-            <p className="text-xs text-muted-foreground mt-1.5">Sierra Leone format: +232 followed by 8 digits</p>
-          </div>
-        )}
-
-        <div>
-          <label className="block text-sm font-medium mb-2">Password</label>
-          <div className="relative">
-            <input type={showPassword ? "text" : "password"} value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••" required className="w-full px-4 py-3 rounded-xl text-sm bg-secondary border-none focus:outline-none focus:ring-2 focus:ring-ring pr-10" />
-            <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">
-              {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-            </button>
-          </div>
+          <h1 className="font-display text-4xl md:text-5xl font-bold tracking-tight mb-3">Welcome Back</h1>
+          <p className="text-muted-foreground text-sm">Sign in to your ArtVault account</p>
         </div>
 
-        <button type="submit" disabled={loading} className="w-full bg-foreground text-background py-3.5 rounded-full font-medium text-sm hover:opacity-90 transition-opacity disabled:opacity-50">
-          {loading ? "Signing in..." : "Sign In"}
-        </button>
-      </form>
+        <div className="flex rounded-2xl bg-secondary p-1.5 mb-8">
+          <button
+            type="button"
+            onClick={() => setMethod("email")}
+            className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-semibold transition-all duration-300 ${
+              method === "email" ? "bg-foreground text-background shadow-sm" : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            <Mail className="h-4 w-4" /> Email
+          </button>
+          <button
+            type="button"
+            onClick={() => setMethod("phone")}
+            className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-semibold transition-all duration-300 ${
+              method === "phone" ? "bg-foreground text-background shadow-sm" : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            <Phone className="h-4 w-4" /> Phone
+          </button>
+        </div>
 
-      <p className="text-center text-sm text-muted-foreground mt-8">
-        Don't have an account?{" "}
-        <Link to="/register" className="text-foreground font-medium hover:opacity-70 transition-opacity">Create one</Link>
-      </p>
+        <form onSubmit={handleSubmit} className="space-y-5">
+          {method === "email" ? (
+            <div>
+              <label className="block text-sm font-semibold mb-2.5">Email</label>
+              <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="your@email.com" required className="apple-input" />
+            </div>
+          ) : (
+            <div>
+              <label className="block text-sm font-semibold mb-2.5">Phone Number</label>
+              <input type="tel" value={phone} onChange={e => setPhone(e.target.value)} placeholder="+232 XXXXXXXX" required className="apple-input" />
+              <p className="text-xs text-muted-foreground mt-2">Sierra Leone format: +232 followed by 8 digits</p>
+            </div>
+          )}
+
+          <div>
+            <label className="block text-sm font-semibold mb-2.5">Password</label>
+            <div className="relative">
+              <input type={showPassword ? "text" : "password"} value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••" required className="apple-input pr-12" />
+              <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors">
+                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </button>
+            </div>
+          </div>
+
+          <button type="submit" disabled={loading} className="apple-btn-primary flex items-center justify-center gap-2">
+            {loading ? (
+              <span className="inline-block h-4 w-4 border-2 border-background/30 border-t-background rounded-full animate-spin" />
+            ) : (
+              <>Sign In <ArrowRight className="h-4 w-4" /></>
+            )}
+          </button>
+        </form>
+
+        <p className="text-center text-sm text-muted-foreground mt-10">
+          Don't have an account?{" "}
+          <Link to="/register" className="text-foreground font-semibold hover:opacity-60 transition-opacity">Create one</Link>
+        </p>
+      </motion.div>
     </div>
   );
 }

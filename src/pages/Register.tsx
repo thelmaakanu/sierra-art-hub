@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Eye, EyeOff, AlertCircle, CheckCircle2, Upload, Palette, ShoppingBag } from "lucide-react";
+import { Eye, EyeOff, AlertCircle, CheckCircle2, Upload, Palette, ShoppingBag, ArrowRight, ArrowLeft, UserPlus } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -122,189 +122,210 @@ export default function Register() {
 
   if (step === "type") {
     return (
-      <div className="container py-20 max-w-lg mx-auto">
-        <div className="text-center mb-12">
-          <h1 className="font-display text-4xl font-bold tracking-tight mb-3">Join ArtVault</h1>
-          <p className="text-muted-foreground">Choose your account type to get started</p>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-10">
-          <button
-            onClick={() => { setUserType("buyer"); setStep("form"); }}
-            className="group relative bg-background border-2 border-border hover:border-foreground rounded-2xl p-10 text-center transition-all duration-300"
-          >
-            <div className="mx-auto w-16 h-16 rounded-2xl bg-secondary flex items-center justify-center mb-5 group-hover:bg-foreground/5 transition-colors">
-              <ShoppingBag className="h-8 w-8" />
+      <div className="min-h-[calc(100vh-72px)] flex items-center justify-center px-4 py-16">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] }}
+          className="w-full max-w-lg"
+        >
+          <div className="text-center mb-12">
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-3xl bg-secondary mb-6">
+              <UserPlus className="h-7 w-7 text-foreground" />
             </div>
-            <h3 className="font-display text-lg font-bold mb-2">Buyer</h3>
-            <p className="text-xs text-muted-foreground leading-relaxed">
-              Browse, discover, and purchase authentic Sierra Leonean art from verified artists
-            </p>
-          </button>
+            <h1 className="font-display text-4xl md:text-5xl font-bold tracking-tight mb-3">Join ArtVault</h1>
+            <p className="text-muted-foreground text-sm">Choose your account type to get started</p>
+          </div>
 
-          <button
-            onClick={() => { setUserType("artist"); setStep("form"); }}
-            className="group relative bg-background border-2 border-border hover:border-foreground rounded-2xl p-10 text-center transition-all duration-300"
-          >
-            <div className="mx-auto w-16 h-16 rounded-2xl bg-secondary flex items-center justify-center mb-5 group-hover:bg-foreground/5 transition-colors">
-              <Palette className="h-8 w-8" />
-            </div>
-            <h3 className="font-display text-lg font-bold mb-2">Artist</h3>
-            <p className="text-xs text-muted-foreground leading-relaxed">
-              Showcase and sell your art to a global audience. Sierra Leonean nationals only
-            </p>
-            <span className="inline-block mt-4 text-[10px] font-bold uppercase tracking-wider bg-secondary px-3 py-1.5 rounded-full">
-              🇸🇱 Sierra Leone Only
-            </span>
-          </button>
-        </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-10">
+            <button
+              onClick={() => { setUserType("buyer"); setStep("form"); }}
+              className="group apple-card p-10 text-center border-2 border-transparent hover:border-foreground/10"
+            >
+              <div className="mx-auto w-16 h-16 rounded-2xl bg-secondary flex items-center justify-center mb-5 group-hover:bg-foreground group-hover:text-background transition-all duration-500">
+                <ShoppingBag className="h-8 w-8" />
+              </div>
+              <h3 className="font-display text-lg font-bold mb-2">Buyer</h3>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                Browse, discover, and purchase authentic Sierra Leonean art from verified artists
+              </p>
+            </button>
 
-        <p className="text-center text-sm text-muted-foreground">
-          Already have an account?{" "}
-          <Link to="/login" className="text-foreground font-medium hover:opacity-70 transition-opacity">Sign in</Link>
-        </p>
+            <button
+              onClick={() => { setUserType("artist"); setStep("form"); }}
+              className="group apple-card p-10 text-center border-2 border-transparent hover:border-foreground/10"
+            >
+              <div className="mx-auto w-16 h-16 rounded-2xl bg-secondary flex items-center justify-center mb-5 group-hover:bg-foreground group-hover:text-background transition-all duration-500">
+                <Palette className="h-8 w-8" />
+              </div>
+              <h3 className="font-display text-lg font-bold mb-2">Artist</h3>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                Showcase and sell your art to a global audience. Sierra Leonean nationals only
+              </p>
+              <span className="inline-block mt-4 text-[10px] font-bold uppercase tracking-wider bg-secondary px-3 py-1.5 rounded-xl">
+                🇸🇱 Sierra Leone Only
+              </span>
+            </button>
+          </div>
+
+          <p className="text-center text-sm text-muted-foreground">
+            Already have an account?{" "}
+            <Link to="/login" className="text-foreground font-semibold hover:opacity-60 transition-opacity">Sign in</Link>
+          </p>
+        </motion.div>
       </div>
     );
   }
 
   return (
-    <div className="container py-20 max-w-md mx-auto">
-      <div className="flex items-center gap-3 mb-10">
-        <button onClick={() => setStep("type")} className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-          ← Back
-        </button>
-        <div className="text-center flex-1">
-          <h1 className="font-display text-2xl font-bold mb-1 tracking-tight">
-            {userType === "buyer" ? "Create Buyer Account" : "Apply as Artist"}
-          </h1>
-          <p className="text-muted-foreground text-xs">
-            {userType === "buyer" ? "Open to all countries" : "Sierra Leonean nationals only 🇸🇱"}
-          </p>
-        </div>
-      </div>
-
-      {userType === "artist" && (
-        <div className="bg-secondary rounded-xl p-4 mb-8 flex items-start gap-3">
-          <AlertCircle className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
-          <p className="text-xs text-muted-foreground">
-            Artist registration requires a valid Sierra Leone phone number (+232). Your application will be reviewed by our team.
-          </p>
-        </div>
-      )}
-
-      <form onSubmit={handleSubmit} className="space-y-5">
-        <div>
-          <label className="block text-sm font-medium mb-2">Full Name</label>
-          <input type="text" value={fullName} onChange={e => setFullName(e.target.value)} placeholder="Enter your full name" required className="w-full px-4 py-3 rounded-xl text-sm bg-secondary border-none focus:outline-none focus:ring-2 focus:ring-ring" />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium mb-2">Email</label>
-          <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="your@email.com" required className="w-full px-4 py-3 rounded-xl text-sm bg-secondary border-none focus:outline-none focus:ring-2 focus:ring-ring" />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium mb-2">Password</label>
-          <div className="relative">
-            <input type={showPassword ? "text" : "password"} value={password} onChange={e => setPassword(e.target.value)} placeholder="Min 8 characters" required minLength={8} className="w-full px-4 py-3 rounded-xl text-sm bg-secondary border-none focus:outline-none focus:ring-2 focus:ring-ring pr-10" />
-            <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">
-              {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-            </button>
+    <div className="min-h-[calc(100vh-72px)] flex items-center justify-center px-4 py-16">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] }}
+        className="w-full max-w-[420px]"
+      >
+        <div className="flex items-center gap-3 mb-10">
+          <button onClick={() => setStep("type")} className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors">
+            <ArrowLeft className="h-4 w-4" /> Back
+          </button>
+          <div className="text-center flex-1">
+            <h1 className="font-display text-2xl font-bold mb-1 tracking-tight">
+              {userType === "buyer" ? "Create Buyer Account" : "Apply as Artist"}
+            </h1>
+            <p className="text-muted-foreground text-xs">
+              {userType === "buyer" ? "Open to all countries" : "Sierra Leonean nationals only 🇸🇱"}
+            </p>
           </div>
         </div>
 
-        {userType === "buyer" && (
-          <>
-            <div>
-              <label className="block text-sm font-medium mb-2">Phone Number (Optional)</label>
-              <input type="tel" value={phoneNumber} onChange={e => setPhoneNumber(e.target.value)} placeholder="+1234567890" className="w-full px-4 py-3 rounded-xl text-sm bg-secondary border-none focus:outline-none focus:ring-2 focus:ring-ring" />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-2">Country</label>
-              <select value={country} onChange={e => setCountry(e.target.value)} required className="w-full px-4 py-3 rounded-xl text-sm bg-secondary border-none focus:outline-none focus:ring-2 focus:ring-ring">
-                <option value="">Select country</option>
-                <option>Sierra Leone</option>
-                <option>Nigeria</option>
-                <option>Ghana</option>
-                <option>United States</option>
-                <option>United Kingdom</option>
-                <option>Germany</option>
-                <option>France</option>
-                <option>Other</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-2">Shipping Address</label>
-              <textarea value={shippingAddress} onChange={e => setShippingAddress(e.target.value)} placeholder="Your shipping address" rows={2} required className="w-full px-4 py-3 rounded-xl text-sm bg-secondary border-none focus:outline-none focus:ring-2 focus:ring-ring resize-none" />
-            </div>
-          </>
+        {userType === "artist" && (
+          <div className="bg-secondary rounded-2xl p-4 mb-8 flex items-start gap-3">
+            <AlertCircle className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              Artist registration requires a valid Sierra Leone phone number (+232). Your application will be reviewed by our team.
+            </p>
+          </div>
         )}
 
-        <AnimatePresence>
-          {userType === "artist" && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              className="space-y-5 overflow-hidden"
-            >
-              <div>
-                <label className="block text-sm font-medium mb-2">Nationality</label>
-                <div className="w-full px-4 py-3 rounded-xl text-sm bg-secondary">Sierra Leone 🇸🇱</div>
-              </div>
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <div>
+            <label className="block text-sm font-semibold mb-2.5">Full Name</label>
+            <input type="text" value={fullName} onChange={e => setFullName(e.target.value)} placeholder="Enter your full name" required className="apple-input" />
+          </div>
 
-              <div>
-                <label className="block text-sm font-medium mb-2">Phone Number</label>
-                <div className="relative">
-                  <input type="tel" value={phone} onChange={e => validatePhone(e.target.value)} placeholder="+232 XXXXXXXX" required className="w-full px-4 py-3 rounded-xl text-sm bg-secondary border-none focus:outline-none focus:ring-2 focus:ring-ring pr-10" />
-                  {phoneValid !== null && (
-                    <span className="absolute right-3 top-1/2 -translate-y-1/2">
-                      {phoneValid ? <CheckCircle2 className="h-4 w-4 text-foreground" /> : <AlertCircle className="h-4 w-4 text-destructive" />}
-                    </span>
-                  )}
-                </div>
-                <p className="text-xs text-muted-foreground mt-1.5">Must be Sierra Leone format: +232 followed by 8 digits</p>
-              </div>
+          <div>
+            <label className="block text-sm font-semibold mb-2.5">Email</label>
+            <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="your@email.com" required className="apple-input" />
+          </div>
 
-              <div>
-                <label className="block text-sm font-medium mb-2">Bio</label>
-                <textarea value={bio} onChange={e => setBio(e.target.value)} placeholder="Tell us about your art and background..." rows={3} required className="w-full px-4 py-3 rounded-xl text-sm bg-secondary border-none focus:outline-none focus:ring-2 focus:ring-ring resize-none" />
-              </div>
+          <div>
+            <label className="block text-sm font-semibold mb-2.5">Password</label>
+            <div className="relative">
+              <input type={showPassword ? "text" : "password"} value={password} onChange={e => setPassword(e.target.value)} placeholder="Min 8 characters" required minLength={8} className="apple-input pr-12" />
+              <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors">
+                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </button>
+            </div>
+          </div>
 
+          {userType === "buyer" && (
+            <>
               <div>
-                <label className="block text-sm font-medium mb-2">Profile Image</label>
-                <label className="border-2 border-dashed border-border rounded-2xl p-8 text-center cursor-pointer hover:border-foreground/30 transition-colors block">
-                  <Upload className="h-6 w-6 mx-auto text-muted-foreground mb-2" />
-                  <p className="text-sm text-muted-foreground">
-                    {profileImage ? profileImage.name : "Click to upload profile photo"}
-                  </p>
-                  <input type="file" accept="image/*" onChange={e => setProfileImage(e.target.files?.[0] || null)} className="hidden" />
-                </label>
+                <label className="block text-sm font-semibold mb-2.5">Phone Number (Optional)</label>
+                <input type="tel" value={phoneNumber} onChange={e => setPhoneNumber(e.target.value)} placeholder="+1234567890" className="apple-input" />
               </div>
-
               <div>
-                <label className="block text-sm font-medium mb-2">ID Verification (Optional)</label>
-                <label className="border-2 border-dashed border-border rounded-2xl p-8 text-center cursor-pointer hover:border-foreground/30 transition-colors block">
-                  <Upload className="h-6 w-6 mx-auto text-muted-foreground mb-2" />
-                  <p className="text-sm text-muted-foreground">
-                    {idDocument ? idDocument.name : "Upload national ID for faster approval"}
-                  </p>
-                  <input type="file" accept="image/*,.pdf" onChange={e => setIdDocument(e.target.files?.[0] || null)} className="hidden" />
-                </label>
+                <label className="block text-sm font-semibold mb-2.5">Country</label>
+                <select value={country} onChange={e => setCountry(e.target.value)} required className="apple-input">
+                  <option value="">Select country</option>
+                  <option>Sierra Leone</option>
+                  <option>Nigeria</option>
+                  <option>Ghana</option>
+                  <option>United States</option>
+                  <option>United Kingdom</option>
+                  <option>Germany</option>
+                  <option>France</option>
+                  <option>Other</option>
+                </select>
               </div>
-            </motion.div>
+              <div>
+                <label className="block text-sm font-semibold mb-2.5">Shipping Address</label>
+                <textarea value={shippingAddress} onChange={e => setShippingAddress(e.target.value)} placeholder="Your shipping address" rows={2} required className="apple-input resize-none" />
+              </div>
+            </>
           )}
-        </AnimatePresence>
 
-        <button type="submit" disabled={loading} className="w-full bg-foreground text-background py-3.5 rounded-full font-medium text-sm hover:opacity-90 transition-opacity disabled:opacity-50">
-          {loading ? "Creating account..." : userType === "buyer" ? "Create Buyer Account" : "Apply as Artist"}
-        </button>
-      </form>
+          <AnimatePresence>
+            {userType === "artist" && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                className="space-y-5 overflow-hidden"
+              >
+                <div>
+                  <label className="block text-sm font-semibold mb-2.5">Nationality</label>
+                  <div className="apple-input bg-secondary/80">Sierra Leone 🇸🇱</div>
+                </div>
 
-      <p className="text-center text-sm text-muted-foreground mt-8">
-        Already have an account?{" "}
-        <Link to="/login" className="text-foreground font-medium hover:opacity-70 transition-opacity">Sign in</Link>
-      </p>
+                <div>
+                  <label className="block text-sm font-semibold mb-2.5">Phone Number</label>
+                  <div className="relative">
+                    <input type="tel" value={phone} onChange={e => validatePhone(e.target.value)} placeholder="+232 XXXXXXXX" required className="apple-input pr-12" />
+                    {phoneValid !== null && (
+                      <span className="absolute right-4 top-1/2 -translate-y-1/2">
+                        {phoneValid ? <CheckCircle2 className="h-4 w-4 text-foreground" /> : <AlertCircle className="h-4 w-4 text-destructive" />}
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-2">Must be Sierra Leone format: +232 followed by 8 digits</p>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold mb-2.5">Bio</label>
+                  <textarea value={bio} onChange={e => setBio(e.target.value)} placeholder="Tell us about your art and background..." rows={3} required className="apple-input resize-none" />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold mb-2.5">Profile Image</label>
+                  <label className="border-2 border-dashed border-border rounded-2xl p-8 text-center cursor-pointer hover:border-foreground/20 transition-all duration-300 block">
+                    <Upload className="h-6 w-6 mx-auto text-muted-foreground mb-2" />
+                    <p className="text-sm text-muted-foreground">
+                      {profileImage ? profileImage.name : "Click to upload profile photo"}
+                    </p>
+                    <input type="file" accept="image/*" onChange={e => setProfileImage(e.target.files?.[0] || null)} className="hidden" />
+                  </label>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold mb-2.5">ID Verification (Optional)</label>
+                  <label className="border-2 border-dashed border-border rounded-2xl p-8 text-center cursor-pointer hover:border-foreground/20 transition-all duration-300 block">
+                    <Upload className="h-6 w-6 mx-auto text-muted-foreground mb-2" />
+                    <p className="text-sm text-muted-foreground">
+                      {idDocument ? idDocument.name : "Upload national ID for faster approval"}
+                    </p>
+                    <input type="file" accept="image/*,.pdf" onChange={e => setIdDocument(e.target.files?.[0] || null)} className="hidden" />
+                  </label>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          <button type="submit" disabled={loading} className="apple-btn-primary flex items-center justify-center gap-2">
+            {loading ? (
+              <span className="inline-block h-4 w-4 border-2 border-background/30 border-t-background rounded-full animate-spin" />
+            ) : (
+              <>{userType === "buyer" ? "Create Buyer Account" : "Apply as Artist"} <ArrowRight className="h-4 w-4" /></>
+            )}
+          </button>
+        </form>
+
+        <p className="text-center text-sm text-muted-foreground mt-10">
+          Already have an account?{" "}
+          <Link to="/login" className="text-foreground font-semibold hover:opacity-60 transition-opacity">Sign in</Link>
+        </p>
+      </motion.div>
     </div>
   );
 }
